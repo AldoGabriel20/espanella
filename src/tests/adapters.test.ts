@@ -41,6 +41,7 @@ const rawItem: RawItem = {
   Stock: 100,
   ReservedStock: 30,
   Unit: "box",
+  Price: 150000,
   CreatedAt: NOW,
   UpdatedAt: NOW,
 };

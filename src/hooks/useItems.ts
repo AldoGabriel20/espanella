@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Item } from "@/types";
+import type { Item, PaginatedResponse } from "@/types";
 
 export const itemKeys = {
   all: ["items"] as const,
@@ -8,7 +8,7 @@ export const itemKeys = {
   detail: (id: string) => ["items", "detail", id] as const,
 };
 
-async function fetchItems(params?: { limit?: number; offset?: number }): Promise<Item[]> {
+async function fetchItems(params?: { limit?: number; offset?: number }): Promise<PaginatedResponse<Item>> {
   const q = new URLSearchParams();
   if (params?.limit !== undefined) q.set("limit", String(params.limit));
   if (params?.offset !== undefined) q.set("offset", String(params.offset));
@@ -32,10 +32,15 @@ async function fetchItemById(id: string): Promise<Item> {
 }
 
 export function useItems(params?: { limit?: number; offset?: number }) {
-  return useQuery({
+  const query = useQuery({
     queryKey: itemKeys.list(params),
     queryFn: () => fetchItems(params),
   });
+  return {
+    ...query,
+    items: query.data?.data ?? [],
+    total: query.data?.total ?? 0,
+  };
 }
 
 export function useItem(id: string) {
@@ -48,7 +53,7 @@ export function useItem(id: string) {
 
 // ─── Mutation types ───────────────────────────────────────────────────────────
 
-export type CreateItemInput = { name: string; stock: number; unit: string };
+export type CreateItemInput = { name: string; stock: number; unit: string; price: number };
 export type UpdateItemInput = Partial<CreateItemInput>;
 
 // ─── Mutation hooks ───────────────────────────────────────────────────────────

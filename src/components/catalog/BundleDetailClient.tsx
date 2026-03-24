@@ -47,10 +47,10 @@ function DetailSkeleton() {
 export function BundleDetailClient({ id, isAdmin }: BundleDetailClientProps) {
   const { data: bundle, isLoading: bundleLoading, isError, error } = useBundle(id);
   // Fetch items to resolve names — usually already cached from other pages
-  const { data: items, isLoading: itemsLoading } = useItems({ limit: 200 });
+  const { items, isLoading: itemsLoading } = useItems({ limit: 200 });
 
   const isLoading = bundleLoading || itemsLoading;
-  const itemMap = items ? buildItemMap(items) : new Map<string, Item>();
+  const itemMap = buildItemMap(items);
 
   if (isLoading) return <DetailSkeleton />;
 

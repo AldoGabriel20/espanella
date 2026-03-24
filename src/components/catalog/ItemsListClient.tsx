@@ -26,17 +26,15 @@ export function ItemsListClient() {
   const [offset, setOffset] = useState(0);
   const [search, setSearch] = useState("");
 
-  const { data: items, isLoading, isError, error } = useItems({ limit: PAGE_SIZE, offset });
+  const { items, isLoading, isError, error } = useItems({ limit: PAGE_SIZE, offset });
 
   // Client-side search filtering (backend doesn't support name search)
-  const filtered = items
-    ? search.trim()
-      ? items.filter((i) => i.name.toLowerCase().includes(search.toLowerCase()))
-      : items
-    : [];
+  const filtered = search.trim()
+    ? items.filter((i) => i.name.toLowerCase().includes(search.toLowerCase()))
+    : items;
 
   const canPrev = offset > 0;
-  const canNext = items?.length === PAGE_SIZE;
+  const canNext = items.length === PAGE_SIZE;
 
   return (
     <div className="space-y-6">

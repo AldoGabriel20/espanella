@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { StockMovement } from "@/types";
+import type { StockMovement, PaginatedResponse } from "@/types";
 
 export const stockKeys = {
   all: ["stock-movements"] as const,
@@ -12,7 +12,7 @@ export const stockKeys = {
 async function fetchStockMovements(params?: {
   limit?: number;
   offset?: number;
-}): Promise<StockMovement[]> {
+}): Promise<PaginatedResponse<StockMovement>> {
   const q = new URLSearchParams();
   if (params?.limit !== undefined) q.set("limit", String(params.limit));
   if (params?.offset !== undefined) q.set("offset", String(params.offset));
@@ -33,7 +33,7 @@ async function fetchStockMovements(params?: {
 async function fetchItemStockMovements(
   itemId: string,
   params?: { limit?: number; offset?: number }
-): Promise<StockMovement[]> {
+): Promise<PaginatedResponse<StockMovement>> {
   const q = new URLSearchParams();
   if (params?.limit !== undefined) q.set("limit", String(params.limit));
   if (params?.offset !== undefined) q.set("offset", String(params.offset));
@@ -52,19 +52,29 @@ async function fetchItemStockMovements(
 }
 
 export function useStockMovements(params?: { limit?: number; offset?: number }) {
-  return useQuery({
+  const query = useQuery({
     queryKey: stockKeys.list(params),
     queryFn: () => fetchStockMovements(params),
   });
+  return {
+    ...query,
+    movements: query.data?.data ?? [],
+    total: query.data?.total ?? 0,
+  };
 }
 
 export function useItemStockMovements(
   itemId: string,
   params?: { limit?: number; offset?: number }
 ) {
-  return useQuery({
+  const query = useQuery({
     queryKey: stockKeys.itemMovements(itemId, params),
     queryFn: () => fetchItemStockMovements(itemId, params),
     enabled: !!itemId,
   });
+  return {
+    ...query,
+    movements: query.data?.data ?? [],
+    total: query.data?.total ?? 0,
+  };
 }

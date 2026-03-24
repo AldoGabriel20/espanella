@@ -180,13 +180,13 @@ interface ItemDrillDownProps {
 
 function ItemDrillDown({ itemId, itemName, onClear }: ItemDrillDownProps) {
   const [offset, setOffset] = useState(0);
-  const { data: movements, isLoading, isError, error } = useItemStockMovements(itemId, {
+  const { movements, isLoading, isError, error } = useItemStockMovements(itemId, {
     limit: PAGE_SIZE,
     offset,
   });
 
   const canPrev = offset > 0;
-  const canNext = movements?.length === PAGE_SIZE;
+  const canNext = movements.length === PAGE_SIZE;
 
   return (
     <div className="space-y-4">
@@ -210,10 +210,10 @@ function ItemDrillDown({ itemId, itemName, onClear }: ItemDrillDownProps) {
         showItemColumn={false}
       />
 
-      {!isLoading && (movements?.length ?? 0) > 0 && (
+      {!isLoading && movements.length > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {offset + 1}–{offset + (movements?.length ?? 0)}
+            Showing {offset + 1}–{offset + movements.length}
           </p>
           <div className="flex gap-2">
             <Button
@@ -249,18 +249,18 @@ export function AdminStockClient() {
 
   // Global movements
   const {
-    data: movements,
+    movements,
     isLoading,
     isError,
     error,
   } = useStockMovements({ limit: PAGE_SIZE, offset });
 
   // Item catalog for name resolution
-  const { data: items = [] } = useItems({ limit: 200 });
+  const { items } = useItems({ limit: 200 });
   const itemNameMap = new Map(items.map((it) => [it.id, it.name]));
 
   const canPrev = offset > 0;
-  const canNext = movements?.length === PAGE_SIZE;
+  const canNext = movements.length === PAGE_SIZE;
 
   const drillItem = drillItemId ? items.find((it) => it.id === drillItemId) : null;
 
@@ -305,10 +305,10 @@ export function AdminStockClient() {
             showItemColumn
           />
 
-          {!isLoading && (movements?.length ?? 0) > 0 && (
+          {!isLoading && movements.length > 0 && (
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Showing {offset + 1}–{offset + (movements?.length ?? 0)}
+                Showing {offset + 1}–{offset + movements.length}
               </p>
               <div className="flex gap-2">
                 <Button

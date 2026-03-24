@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useItems } from "@/hooks/useItems";
 import { useBundles } from "@/hooks/useBundles";
 import { useOrders } from "@/hooks/useOrders";
+import { useAdminSummary } from "@/hooks/useAdminSummary";
 import { LOW_STOCK_THRESHOLD } from "@/components/catalog/StockIndicator";
 import { formatDate } from "@/lib/utils/date";
 import { cn } from "@/lib/utils";
@@ -89,13 +90,27 @@ function MetricCard({
 }
 
 export function DashboardClient({ user }: DashboardClientProps) {
-  const { data: items, isLoading: itemsLoading } = useItems({ limit: 100 });
-  const { data: bundles, isLoading: bundlesLoading } = useBundles({ limit: 100 });
-  const { data: orders, isLoading: ordersLoading } = useOrders({ limit: 50 });
+  const isAdmin = user.role === "admin";
+  const { items, isLoading: itemsLoading } = useItems({ limit: 100 });
+  const { bundles, isLoading: bundlesLoading } = useBundles({ limit: 100 });
+  const { orders, isLoading: ordersLoading } = useOrders({ limit: 50 });
+  const { data: summary, isLoading: summaryLoading } = useAdminSummary();
 
-  const lowStockItems = items?.filter((i) => i.availableStock <= LOW_STOCK_THRESHOLD) ?? [];
-  const pendingOrders = orders?.filter((o) => o.status === "pending") ?? [];
-  const recentOrders = orders?.slice(0, 5) ?? [];
+  // For admin: use accurate counts from the summary endpoint.
+  // For regular users: derive counts from their own fetched lists.
+  const totalItems = isAdmin ? (summary?.totalItems ?? items.length) : items.length;
+  const totalBundles = isAdmin ? (summary?.totalBundles ?? bundles.length) : bundles.length;
+  const totalOrders = isAdmin ? (summary?.totalOrders ?? orders.length) : orders.length;
+  const pendingOrdersCount = isAdmin
+    ? (summary?.pendingOrders ?? orders.filter((o) => o.status === "pending").length)
+    : orders.filter((o) => o.status === "pending").length;
+
+  const metricsLoading = isAdmin
+    ? summaryLoading
+    : itemsLoading || bundlesLoading || ordersLoading;
+
+  const lowStockItems = items.filter((i) => i.availableStock <= LOW_STOCK_THRESHOLD);
+  const recentOrders = orders.slice(0, 5);
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -120,31 +135,31 @@ export function DashboardClient({ user }: DashboardClientProps) {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <MetricCard
           title="Total Items"
-          value={items?.length ?? "—"}
+          value={totalItems}
           icon={Package}
-          loading={itemsLoading}
+          loading={metricsLoading}
           href="/catalog/items"
         />
         <MetricCard
           title="Total Bundles"
-          value={bundles?.length ?? "—"}
+          value={totalBundles}
           icon={Boxes}
-          loading={bundlesLoading}
+          loading={metricsLoading}
           href="/catalog/bundles"
         />
         <MetricCard
           title="Total Orders"
-          value={orders?.length ?? "—"}
+          value={totalOrders}
           icon={ShoppingCart}
-          loading={ordersLoading}
+          loading={metricsLoading}
           href="/orders"
         />
         <MetricCard
           title="Pending Orders"
-          value={pendingOrders.length}
+          value={pendingOrdersCount}
           icon={Clock}
-          loading={ordersLoading}
-          accent={pendingOrders.length > 0 ? "amber" : undefined}
+          loading={metricsLoading}
+          accent={pendingOrdersCount > 0 ? "amber" : undefined}
           href="/orders"
         />
       </div>

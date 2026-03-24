@@ -41,9 +41,9 @@ export function AdminBundlesClient() {
   const [editBundle, setEditBundle] = useState<Bundle | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Bundle | null>(null);
 
-  const { data: bundles, isLoading: bundlesLoading, isError, error } = useBundles({ limit: 200 });
+  const { bundles, isLoading: bundlesLoading, isError, error } = useBundles({ limit: 200 });
   // Load item catalog to populate the bundle form selectors
-  const { data: items = [], isLoading: itemsLoading } = useItems({ limit: 200 });
+  const { items, isLoading: itemsLoading } = useItems({ limit: 200 });
 
   const createBundle = useCreateBundle();
   const updateBundle = useUpdateBundle();
@@ -133,7 +133,7 @@ export function AdminBundlesClient() {
                   <TableCell />
                 </TableRow>
               ))
-            ) : bundles?.length === 0 ? (
+            ) : bundles.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="h-40 text-center">
                   <div className="flex flex-col items-center gap-3">
@@ -146,7 +146,7 @@ export function AdminBundlesClient() {
                 </TableCell>
               </TableRow>
             ) : (
-              bundles?.map((bundle) => {
+              bundles.map((bundle) => {
                 // Resolve item names for the composition preview
                 const preview = bundle.items
                   .slice(0, 3)

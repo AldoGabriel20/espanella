@@ -17,6 +17,7 @@ const ItemSchema = z.object({
   name: z.string().min(1, "Name is required"),
   stock: z.number().int().min(0, "Must be 0 or more"),
   unit: z.string().min(1, "Unit is required"),
+  price: z.number().min(0, "Must be 0 or more"),
 });
 
 export type ItemFormValues = z.infer<typeof ItemSchema>;
@@ -53,6 +54,7 @@ export function ItemForm({
       name: defaultValues?.name ?? "",
       stock: defaultValues?.stock ?? 0,
       unit: defaultValues?.unit ?? "",
+      price: defaultValues?.price ?? 0,
     },
   });
 
@@ -62,8 +64,9 @@ export function ItemForm({
       name: defaultValues?.name ?? "",
       stock: defaultValues?.stock ?? 0,
       unit: defaultValues?.unit ?? "",
+      price: defaultValues?.price ?? 0,
     });
-  }, [defaultValues?.name, defaultValues?.stock, defaultValues?.unit, reset]);
+  }, [defaultValues?.name, defaultValues?.stock, defaultValues?.unit, defaultValues?.price, reset]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -120,6 +123,23 @@ export function ItemForm({
             <p className="text-xs text-red-500">{errors.unit.message}</p>
           )}
         </div>
+      </div>
+
+      {/* Price */}
+      <div className="space-y-1.5">
+        <Label htmlFor="item-price">Catalog Price (IDR)</Label>
+        <Input
+          id="item-price"
+          type="number"
+          min="0"
+          step="1000"
+          placeholder="0"
+          {...register("price", { valueAsNumber: true })}
+          className={cn(errors.price && "border-red-400")}
+        />
+        {errors.price && (
+          <p className="text-xs text-red-500">{errors.price.message}</p>
+        )}
       </div>
 
       {/* Actions */}

@@ -23,6 +23,7 @@ export type Item = {
   reservedStock: number;
   availableStock: number;
   unit: string;
+  price: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -96,6 +97,36 @@ export type PaginatedResponse<T> = {
   total: number;
   limit: number;
   offset: number;
+};
+
+// Admin summary
+export type AdminSummary = {
+  totalItems: number;
+  totalBundles: number;
+  totalOrders: number;
+  pendingOrders: number;
+  lowStockItems: number;
+  lowStockThreshold: number;
+};
+
+// Notification types
+export type NotificationStatus = "pending" | "sent" | "failed" | "skipped";
+
+export type NotificationLog = {
+  id: string;
+  orderId: string | null;
+  itemId: string | null;
+  channel: string;
+  notificationType: string;
+  scheduledFor: string;
+  recipient: string;
+  status: NotificationStatus;
+  providerMessageId: string | null;
+  providerName: string | null;
+  errorMessage: string | null;
+  sentAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 // API error

@@ -60,20 +60,20 @@ export function AdminItemsClient() {
   const [editItem, setEditItem] = useState<Item | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Item | null>(null);
 
-  const { data: items, isLoading, isError, error } = useItems({ limit: 200 });
+  const { items, isLoading, isError, error } = useItems({ limit: 200 });
   const createItem = useCreateItem();
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
 
-  // ─── Handlers ──────────────────────────────────────────────────────────────
+  // ─── Handlers ─────────────────────────────────────────────────────────────
 
-  async function handleCreate(values: { name: string; stock: number; unit: string }) {
+  async function handleCreate(values: { name: string; stock: number; unit: string; price: number }) {
     await createItem.mutateAsync(values);
     setCreateOpen(false);
     createItem.reset();
   }
 
-  async function handleUpdate(values: { name: string; stock: number; unit: string }) {
+  async function handleUpdate(values: { name: string; stock: number; unit: string; price: number }) {
     if (!editItem) return;
     await updateItem.mutateAsync({ id: editItem.id, data: values });
     setEditItem(null);
@@ -134,7 +134,7 @@ export function AdminItemsClient() {
                   <TableCell />
                 </TableRow>
               ))
-            ) : items?.length === 0 ? (
+            ) : items.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-40 text-center">
                   <div className="flex flex-col items-center gap-3">
@@ -147,7 +147,7 @@ export function AdminItemsClient() {
                 </TableCell>
               </TableRow>
             ) : (
-              items?.map((item) => (
+              items.map((item) => (
                 <TableRow
                   key={item.id}
                   className={cn(
@@ -235,7 +235,7 @@ export function AdminItemsClient() {
           </DialogHeader>
           {editItem && (
             <ItemForm
-              defaultValues={{ name: editItem.name, stock: editItem.stock, unit: editItem.unit }}
+              defaultValues={{ name: editItem.name, stock: editItem.stock, unit: editItem.unit, price: editItem.price }}
               onSubmit={handleUpdate}
               isPending={updateItem.isPending}
               error={updateItem.error as Error | null}

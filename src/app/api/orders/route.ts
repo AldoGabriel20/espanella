@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       items: (data.lines as DraftLine[]).map((line) => ({
         item_id: line.type === "item" ? line.sourceId : undefined,
         bundle_id: line.type === "bundle" ? line.sourceId : undefined,
-        name: line.name,
+        line_name: line.name,
         quantity: line.quantity,
         unit_price: line.unitPrice,
       })),

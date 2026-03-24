@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Order, OrderStatus } from "@/types";
+import type { Order, OrderStatus, PaginatedResponse } from "@/types";
 
 export const orderKeys = {
   all: ["orders"] as const,
@@ -14,7 +14,7 @@ async function fetchOrders(params?: {
   limit?: number;
   offset?: number;
   status?: OrderStatus;
-}): Promise<Order[]> {
+}): Promise<PaginatedResponse<Order>> {
   const q = new URLSearchParams();
   if (params?.limit !== undefined) q.set("limit", String(params.limit));
   if (params?.offset !== undefined) q.set("offset", String(params.offset));
@@ -44,10 +44,15 @@ export function useOrders(params?: {
   offset?: number;
   status?: OrderStatus;
 }) {
-  return useQuery({
+  const query = useQuery({
     queryKey: orderKeys.list(params),
     queryFn: () => fetchOrders(params),
   });
+  return {
+    ...query,
+    orders: query.data?.data ?? [],
+    total: query.data?.total ?? 0,
+  };
 }
 
 export function useOrderById(id: string) {

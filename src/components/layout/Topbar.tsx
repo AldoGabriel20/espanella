@@ -91,8 +91,15 @@ export function Topbar({
           size="icon"
           aria-label="Notifications"
           className="text-muted-foreground hover:text-foreground"
+          asChild={role === "admin"}
         >
-          <Bell className="h-4.5 w-4.5" />
+          {role === "admin" ? (
+            <Link href="/admin/notifications">
+              <Bell className="h-4.5 w-4.5" />
+            </Link>
+          ) : (
+            <Bell className="h-4.5 w-4.5" />
+          )}
         </Button>
 
         <DropdownMenu>

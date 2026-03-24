@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, ChevronLeft, ChevronRight, AlertCircle, Info, ShoppingCart } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, AlertCircle, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert } from "@/components/ui/alert";
 import {
   Table,
   TableBody,
@@ -44,10 +44,10 @@ export function OrdersListClient() {
     ...(statusFilter !== "all" && { status: statusFilter }),
   };
 
-  const { data: orders, isLoading, isError, error } = useOrders(queryParams);
+  const { orders, isLoading, isError, error } = useOrders(queryParams);
 
   const canPrev = offset > 0;
-  const canNext = orders?.length === PAGE_SIZE;
+  const canNext = orders.length === PAGE_SIZE;
 
   function handleFilterChange(value: OrderStatus | "all") {
     setStatusFilter(value);
@@ -68,15 +68,6 @@ export function OrdersListClient() {
           </Link>
         }
       />
-
-      {/* Global visibility warning */}
-      <Alert className="border-amber-200 bg-amber-50 text-amber-800">
-        <Info className="h-4 w-4 text-amber-600" />
-        <AlertDescription>
-          Orders are visible to all authenticated team members. Per-user order scoping is not yet
-          implemented in the API.
-        </AlertDescription>
-      </Alert>
 
       {/* Status filter pills */}
       <div className="flex flex-wrap gap-2">
@@ -142,7 +133,7 @@ export function OrdersListClient() {
                   <TableCell />
                 </TableRow>
               ))
-            ) : orders?.length === 0 ? (
+            ) : orders.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="h-40 text-center">
                   <div className="flex flex-col items-center gap-3">
@@ -163,7 +154,7 @@ export function OrdersListClient() {
                 </TableCell>
               </TableRow>
             ) : (
-              orders?.map((order) => (
+              orders.map((order) => (
                 <TableRow key={order.id} className="group">
                   <TableCell>
                     <div>
@@ -204,10 +195,10 @@ export function OrdersListClient() {
       </div>
 
       {/* Pagination */}
-      {!isLoading && (orders?.length ?? 0) > 0 && (
+      {!isLoading && orders.length > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {offset + 1}–{offset + (orders?.length ?? 0)}
+            Showing {offset + 1}–{offset + orders.length}
           </p>
           <div className="flex items-center gap-2">
             <Button

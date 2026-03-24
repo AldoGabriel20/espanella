@@ -8,7 +8,7 @@
 import { apiFetch } from "./client";
 import { RawBundleSchema, RawBundleListSchema } from "./schemas";
 import { adaptBundle, adaptBundleList } from "./adapters";
-import type { Bundle } from "@/types";
+import type { Bundle, PaginatedResponse } from "@/types";
 
 export type BundlesListParams = {
   limit?: number;
@@ -25,9 +25,15 @@ function buildQuery(params: BundlesListParams): string {
 
 // ─── Reads ────────────────────────────────────────────────────────────────────
 
-export async function getBundles(params: BundlesListParams = {}): Promise<Bundle[]> {
+export async function getBundles(params: BundlesListParams = {}): Promise<PaginatedResponse<Bundle>> {
   const raw = await apiFetch<unknown>(`/bundles${buildQuery(params)}`);
-  return adaptBundleList(RawBundleListSchema.parse(raw));
+  const parsed = RawBundleListSchema.parse(raw);
+  return {
+    data: adaptBundleList(parsed.data),
+    total: parsed.total,
+    limit: parsed.limit,
+    offset: parsed.offset,
+  };
 }
 
 export async function getBundleById(id: string): Promise<Bundle> {

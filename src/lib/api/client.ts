@@ -211,7 +211,7 @@ export async function backendRegister(
 ): Promise<TokenPair> {
   const data = await publicFetch<LoginResponse>("/auth/register", {
     method: "POST",
-    body,
+    body: { full_name: body.name, email: body.email, password: body.password },
   });
   const now = Math.floor(Date.now() / 1000);
   return {

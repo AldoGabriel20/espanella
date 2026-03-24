@@ -47,6 +47,17 @@ export type RawLoginResponse = z.infer<typeof RawLoginResponseSchema>;
 export const RawRefreshResponseSchema = RawLoginResponseSchema;
 export type RawRefreshResponse = z.infer<typeof RawRefreshResponseSchema>;
 
+// ─── Pagination envelope ─────────────────────────────────────────────────────
+
+export function pagedResponseSchema<T extends z.ZodTypeAny>(itemSchema: T) {
+  return z.object({
+    data: z.array(itemSchema),
+    total: z.number().int().min(0),
+    limit: z.number().int().min(0),
+    offset: z.number().int().min(0),
+  });
+}
+
 // ─── Items (PascalCase) ───────────────────────────────────────────────────────
 
 export const RawItemSchema = z.object({
@@ -55,12 +66,14 @@ export const RawItemSchema = z.object({
   Stock: z.number().int().min(0),
   ReservedStock: z.number().int().min(0),
   Unit: z.string(),
+  Price: z.number().min(0).default(0),
   CreatedAt: isoDateString,
   UpdatedAt: isoDateString,
 });
 export type RawItem = z.infer<typeof RawItemSchema>;
 
-export const RawItemListSchema = z.array(RawItemSchema);
+export const RawItemListSchema = pagedResponseSchema(RawItemSchema);
+export type RawItemList = z.infer<typeof RawItemListSchema>;
 
 // ─── Bundles (PascalCase) ─────────────────────────────────────────────────────
 
@@ -80,7 +93,8 @@ export const RawBundleSchema = z.object({
 });
 export type RawBundle = z.infer<typeof RawBundleSchema>;
 
-export const RawBundleListSchema = z.array(RawBundleSchema);
+export const RawBundleListSchema = pagedResponseSchema(RawBundleSchema);
+export type RawBundleList = z.infer<typeof RawBundleListSchema>;
 
 // ─── Orders (PascalCase) ──────────────────────────────────────────────────────
 
@@ -110,7 +124,8 @@ export const RawOrderSchema = z.object({
 });
 export type RawOrder = z.infer<typeof RawOrderSchema>;
 
-export const RawOrderListSchema = z.array(RawOrderSchema);
+export const RawOrderListSchema = pagedResponseSchema(RawOrderSchema);
+export type RawOrderList = z.infer<typeof RawOrderListSchema>;
 
 // ─── Invoice (snake_case) ─────────────────────────────────────────────────────
 
@@ -132,7 +147,8 @@ export const RawStockMovementSchema = z.object({
 });
 export type RawStockMovement = z.infer<typeof RawStockMovementSchema>;
 
-export const RawStockMovementListSchema = z.array(RawStockMovementSchema);
+export const RawStockMovementListSchema = pagedResponseSchema(RawStockMovementSchema);
+export type RawStockMovementList = z.infer<typeof RawStockMovementListSchema>;
 
 // ─── Request body Zod schemas (for BFF route handler validation) ──────────────
 
@@ -151,6 +167,7 @@ export const CreateItemRequestSchema = z.object({
   name: z.string().min(1, "Item name is required"),
   stock: z.number().int().min(0, "Stock cannot be negative"),
   unit: z.string().min(1, "Unit is required"),
+  price: z.number().min(0, "Price cannot be negative"),
 });
 
 export const UpdateItemRequestSchema = CreateItemRequestSchema.partial();
@@ -194,4 +211,41 @@ export const UpdateOrderStatusRequestSchema = z.object({
   status: z.enum(orderStatusValues, "Invalid order status"),
 });
 
-export { orderStatusValues };
+// ─── Admin Summary (snake_case) ───────────────────────────────────────────────
+
+export const RawAdminSummarySchema = z.object({
+  total_items: z.number().int().min(0),
+  total_bundles: z.number().int().min(0),
+  total_orders: z.number().int().min(0),
+  pending_orders: z.number().int().min(0),
+  low_stock_items: z.number().int().min(0),
+  low_stock_threshold: z.number().int().min(0),
+});
+export type RawAdminSummary = z.infer<typeof RawAdminSummarySchema>;
+
+// ─── Notification logs (PascalCase) ──────────────────────────────────────────
+
+const notificationStatusValues = ["pending", "sent", "failed", "skipped"] as const;
+
+export const RawNotificationLogSchema = z.object({
+  ID: z.string(),
+  OrderID: z.string().nullable().default(null),
+  ItemID: z.string().nullable().default(null),
+  Channel: z.string(),
+  NotificationType: z.string(),
+  ScheduledFor: isoDateString,
+  Recipient: z.string(),
+  Status: z.enum(notificationStatusValues),
+  ProviderMessageID: z.string().nullable().default(null),
+  ProviderName: z.string().nullable().default(null),
+  ErrorMessage: z.string().nullable().default(null),
+  SentAt: z.string().nullable().default(null),
+  CreatedAt: isoDateString,
+  UpdatedAt: isoDateString,
+});
+export type RawNotificationLog = z.infer<typeof RawNotificationLogSchema>;
+
+export const RawNotificationListSchema = pagedResponseSchema(RawNotificationLogSchema);
+export type RawNotificationList = z.infer<typeof RawNotificationListSchema>;
+
+export { orderStatusValues, notificationStatusValues };

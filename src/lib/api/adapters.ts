@@ -21,6 +21,8 @@ import type {
   RawOrder,
   RawInvoice,
   RawStockMovement,
+  RawAdminSummary,
+  RawNotificationLog,
 } from "./schemas";
 
 import type {
@@ -31,6 +33,8 @@ import type {
   OrderItem,
   Order,
   StockMovement,
+  AdminSummary,
+  NotificationLog,
 } from "@/types";
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
@@ -58,6 +62,7 @@ export function adaptItem(raw: RawItem): Item {
     reservedStock,
     availableStock: Math.max(0, stock - reservedStock),
     unit: raw.Unit,
+    price: raw.Price ?? 0,
     createdAt: raw.CreatedAt,
     updatedAt: raw.UpdatedAt,
   };
@@ -156,6 +161,44 @@ export function adaptStockMovement(raw: RawStockMovement): StockMovement {
     reason: raw.Reason,
     createdAt: raw.CreatedAt,
   };
+}
+
+// ─── Admin Summary ────────────────────────────────────────────────────────────
+
+export function adaptAdminSummary(raw: RawAdminSummary): AdminSummary {
+  return {
+    totalItems: raw.total_items,
+    totalBundles: raw.total_bundles,
+    totalOrders: raw.total_orders,
+    pendingOrders: raw.pending_orders,
+    lowStockItems: raw.low_stock_items,
+    lowStockThreshold: raw.low_stock_threshold,
+  };
+}
+
+// ─── Notification Logs ────────────────────────────────────────────────────────
+
+export function adaptNotificationLog(raw: RawNotificationLog): NotificationLog {
+  return {
+    id: raw.ID,
+    orderId: raw.OrderID,
+    itemId: raw.ItemID,
+    channel: raw.Channel,
+    notificationType: raw.NotificationType,
+    scheduledFor: raw.ScheduledFor,
+    recipient: raw.Recipient,
+    status: raw.Status,
+    providerMessageId: raw.ProviderMessageID,
+    providerName: raw.ProviderName,
+    errorMessage: raw.ErrorMessage,
+    sentAt: raw.SentAt ?? null,
+    createdAt: raw.CreatedAt,
+    updatedAt: raw.UpdatedAt,
+  };
+}
+
+export function adaptNotificationList(raws: RawNotificationLog[]): NotificationLog[] {
+  return raws.map(adaptNotificationLog);
 }
 
 export function adaptStockMovementList(

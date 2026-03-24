@@ -8,7 +8,7 @@
 import { apiFetch } from "./client";
 import { RawItemSchema, RawItemListSchema } from "./schemas";
 import { adaptItem, adaptItemList } from "./adapters";
-import type { Item } from "@/types";
+import type { Item, PaginatedResponse } from "@/types";
 
 export type ItemsListParams = {
   limit?: number;
@@ -25,9 +25,15 @@ function buildQuery(params: ItemsListParams): string {
 
 // ─── Reads ────────────────────────────────────────────────────────────────────
 
-export async function getItems(params: ItemsListParams = {}): Promise<Item[]> {
+export async function getItems(params: ItemsListParams = {}): Promise<PaginatedResponse<Item>> {
   const raw = await apiFetch<unknown>(`/items${buildQuery(params)}`);
-  return adaptItemList(RawItemListSchema.parse(raw));
+  const parsed = RawItemListSchema.parse(raw);
+  return {
+    data: adaptItemList(parsed.data),
+    total: parsed.total,
+    limit: parsed.limit,
+    offset: parsed.offset,
+  };
 }
 
 export async function getItemById(id: string): Promise<Item> {
@@ -41,6 +47,7 @@ export type CreateItemBody = {
   name: string;
   stock: number;
   unit: string;
+  price: number;
 };
 
 export async function createItem(body: CreateItemBody): Promise<Item> {

@@ -8,7 +8,7 @@
 import { apiFetch } from "./client";
 import { RawOrderSchema, RawOrderListSchema } from "./schemas";
 import { adaptOrder, adaptOrderList } from "./adapters";
-import type { Order, OrderStatus } from "@/types";
+import type { Order, OrderStatus, PaginatedResponse } from "@/types";
 
 export type OrdersListParams = {
   limit?: number;
@@ -27,9 +27,15 @@ function buildQuery(params: OrdersListParams): string {
 
 // ─── Reads ────────────────────────────────────────────────────────────────────
 
-export async function getOrders(params: OrdersListParams = {}): Promise<Order[]> {
+export async function getOrders(params: OrdersListParams = {}): Promise<PaginatedResponse<Order>> {
   const raw = await apiFetch<unknown>(`/orders${buildQuery(params)}`);
-  return adaptOrderList(RawOrderListSchema.parse(raw));
+  const parsed = RawOrderListSchema.parse(raw);
+  return {
+    data: adaptOrderList(parsed.data),
+    total: parsed.total,
+    limit: parsed.limit,
+    offset: parsed.offset,
+  };
 }
 
 export async function getOrderById(id: string): Promise<Order> {
@@ -42,7 +48,7 @@ export async function getOrderById(id: string): Promise<Order> {
 export type OrderLineInput = {
   item_id?: string;
   bundle_id?: string;
-  name: string;
+  line_name: string;
   quantity: number;
   unit_price: number;
 };

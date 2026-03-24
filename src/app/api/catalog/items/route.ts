@@ -23,6 +23,7 @@ export async function POST(request: Request) {
       name: data.name,
       stock: data.stock,
       unit: data.unit,
+      price: data.price ?? 0,
     });
     return NextResponse.json(item, { status: 201 });
   } catch (err) {

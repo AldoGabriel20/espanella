@@ -51,6 +51,7 @@ const itemFixture: Item = {
   reservedStock: 20,
   availableStock: 80,
   unit: "box",
+  price: 0,
   createdAt: NOW,
   updatedAt: NOW,
 };
@@ -72,16 +73,17 @@ const orderFixture: Order = {
 
 describe("useItems", () => {
   it("returns data when fetch succeeds", async () => {
-    mockFetch([itemFixture]);
+    mockFetch({ data: [itemFixture], total: 1, limit: 50, offset: 0 });
     const { Wrapper } = makeWrapper();
     const { result } = renderHook(() => useItems(), { wrapper: Wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual([itemFixture]);
+    expect(result.current.items).toEqual([itemFixture]);
+    expect(result.current.total).toBe(1);
   });
 
   it("calls the correct URL", async () => {
-    mockFetch([itemFixture]);
+    mockFetch({ data: [itemFixture], total: 1, limit: 50, offset: 0 });
     const { Wrapper } = makeWrapper();
     renderHook(() => useItems(), { wrapper: Wrapper });
 
@@ -91,7 +93,7 @@ describe("useItems", () => {
   });
 
   it("appends query params when provided", async () => {
-    mockFetch([itemFixture]);
+    mockFetch({ data: [itemFixture], total: 1, limit: 10, offset: 20 });
     const { Wrapper } = makeWrapper();
     renderHook(() => useItems({ limit: 10, offset: 20 }), { wrapper: Wrapper });
 
@@ -120,7 +122,7 @@ describe("useCreateItem", () => {
     const { Wrapper } = makeWrapper();
     const { result } = renderHook(() => useCreateItem(), { wrapper: Wrapper });
 
-    const input = { name: "Premium Dates", stock: 100, unit: "box" };
+    const input = { name: "Premium Dates", stock: 100, unit: "box", price: 0 };
     result.current.mutate(input);
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -139,7 +141,7 @@ describe("useCreateItem", () => {
     const { Wrapper } = makeWrapper();
     const { result } = renderHook(() => useCreateItem(), { wrapper: Wrapper });
 
-    result.current.mutate({ name: "Premium Dates", stock: 100, unit: "box" });
+    result.current.mutate({ name: "Premium Dates", stock: 100, unit: "box", price: 0 });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual(itemFixture);
   });
@@ -149,7 +151,7 @@ describe("useCreateItem", () => {
     const { Wrapper } = makeWrapper();
     const { result } = renderHook(() => useCreateItem(), { wrapper: Wrapper });
 
-    result.current.mutate({ name: "Dupe", stock: 0, unit: "kg" });
+    result.current.mutate({ name: "Dupe", stock: 0, unit: "kg", price: 0 });
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect((result.current.error as Error).message).toBe("Item name already exists");
   });
@@ -191,16 +193,16 @@ describe("useDeleteItem", () => {
 
 describe("useOrders", () => {
   it("returns orders when fetch succeeds", async () => {
-    mockFetch([orderFixture]);
+    mockFetch({ data: [orderFixture], total: 1, limit: 50, offset: 0 });
     const { Wrapper } = makeWrapper();
     const { result } = renderHook(() => useOrders(), { wrapper: Wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual([orderFixture]);
+    expect(result.current.orders).toEqual([orderFixture]);
   });
 
   it("includes status query param when provided", async () => {
-    mockFetch([]);
+    mockFetch({ data: [], total: 0, limit: 50, offset: 0 });
     const { Wrapper } = makeWrapper();
     renderHook(() => useOrders({ status: "pending" }), { wrapper: Wrapper });
 

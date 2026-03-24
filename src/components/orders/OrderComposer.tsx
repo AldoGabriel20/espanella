@@ -17,6 +17,8 @@ import { useBundles } from "@/hooks/useBundles";
 import { useCreateOrder } from "@/hooks/useOrders";
 import { formatIDR } from "@/lib/utils/currency";
 import { cn } from "@/lib/utils";
+import type { Item } from "@/types";
+import type { Bundle } from "@/types";
 
 // ─── Zod schema ───────────────────────────────────────────────────────────────
 
@@ -50,8 +52,8 @@ interface LineRowProps {
   index: number;
   form: ReturnType<typeof useForm<OrderFormValues>>;
   onRemove: () => void;
-  items: ReturnType<typeof useItems>["data"];
-  bundles: ReturnType<typeof useBundles>["data"];
+  items: Item[];
+  bundles: Bundle[];
 }
 
 function LineRow({ index, form, onRemove, items, bundles }: LineRowProps) {
@@ -65,15 +67,18 @@ function LineRow({ index, form, onRemove, items, bundles }: LineRowProps) {
   const errors = formState.errors.lines?.[index];
 
   // For items, show stock availability
-  const selectedItem = type === "item" ? items?.find((i) => i.id === sourceId) : null;
+  const selectedItem = type === "item" ? items.find((i) => i.id === sourceId) : null;
 
   function handleSourceChange(newId: string) {
     setValue(`lines.${index}.sourceId`, newId);
     if (type === "item") {
-      const item = items?.find((i) => i.id === newId);
-      if (item) setValue(`lines.${index}.name`, item.name);
+      const item = items.find((i) => i.id === newId);
+      if (item) {
+        setValue(`lines.${index}.name`, item.name);
+        if (item.price > 0) setValue(`lines.${index}.unitPrice`, item.price);
+      }
     } else {
-      const bundle = bundles?.find((b) => b.id === newId);
+      const bundle = bundles.find((b) => b.id === newId);
       if (bundle) setValue(`lines.${index}.name`, bundle.name);
     }
   }
@@ -132,12 +137,12 @@ function LineRow({ index, form, onRemove, items, bundles }: LineRowProps) {
             >
               <option value="">— Select {type === "item" ? "an item" : "a bundle"} —</option>
               {type === "item"
-                ? items?.map((item) => (
+                ? items.map((item) => (
                     <option key={item.id} value={item.id}>
                       {item.name} ({item.availableStock} {item.unit} available)
                     </option>
                   ))
-                : bundles?.map((bundle) => (
+                : bundles.map((bundle) => (
                     <option key={bundle.id} value={bundle.id}>
                       {bundle.name} ({bundle.items.length} items)
                     </option>
@@ -225,8 +230,8 @@ function LineRow({ index, form, onRemove, items, bundles }: LineRowProps) {
 
 export function OrderComposer() {
   const router = useRouter();
-  const { data: items, isLoading: itemsLoading } = useItems({ limit: 200 });
-  const { data: bundles, isLoading: bundlesLoading } = useBundles({ limit: 200 });
+  const { items, isLoading: itemsLoading } = useItems({ limit: 200 });
+  const { bundles, isLoading: bundlesLoading } = useBundles({ limit: 200 });
   const createOrder = useCreateOrder();
 
   const form = useForm<OrderFormValues>({

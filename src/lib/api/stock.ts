@@ -8,7 +8,7 @@
 import { apiFetch } from "./client";
 import { RawStockMovementListSchema } from "./schemas";
 import { adaptStockMovementList } from "./adapters";
-import type { StockMovement } from "@/types";
+import type { StockMovement, PaginatedResponse } from "@/types";
 
 export type StockListParams = {
   limit?: number;
@@ -26,9 +26,15 @@ function buildQuery(params: StockListParams): string {
 /**
  * All stock movements across all items (admin only).
  */
-export async function getStockMovements(params: StockListParams = {}): Promise<StockMovement[]> {
+export async function getStockMovements(params: StockListParams = {}): Promise<PaginatedResponse<StockMovement>> {
   const raw = await apiFetch<unknown>(`/stock-movements${buildQuery(params)}`);
-  return adaptStockMovementList(RawStockMovementListSchema.parse(raw));
+  const parsed = RawStockMovementListSchema.parse(raw);
+  return {
+    data: adaptStockMovementList(parsed.data),
+    total: parsed.total,
+    limit: parsed.limit,
+    offset: parsed.offset,
+  };
 }
 
 /**
@@ -37,7 +43,13 @@ export async function getStockMovements(params: StockListParams = {}): Promise<S
 export async function getItemStockMovements(
   itemId: string,
   params: StockListParams = {}
-): Promise<StockMovement[]> {
+): Promise<PaginatedResponse<StockMovement>> {
   const raw = await apiFetch<unknown>(`/items/${itemId}/stock-movements${buildQuery(params)}`);
-  return adaptStockMovementList(RawStockMovementListSchema.parse(raw));
+  const parsed = RawStockMovementListSchema.parse(raw);
+  return {
+    data: adaptStockMovementList(parsed.data),
+    total: parsed.total,
+    limit: parsed.limit,
+    offset: parsed.offset,
+  };
 }

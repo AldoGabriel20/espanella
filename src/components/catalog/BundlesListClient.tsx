@@ -17,16 +17,14 @@ export function BundlesListClient() {
   const [offset, setOffset] = useState(0);
   const [search, setSearch] = useState("");
 
-  const { data: bundles, isLoading, isError, error } = useBundles({ limit: PAGE_SIZE, offset });
+  const { bundles, isLoading, isError, error } = useBundles({ limit: PAGE_SIZE, offset });
 
-  const filtered = bundles
-    ? search.trim()
-      ? bundles.filter((b) => b.name.toLowerCase().includes(search.toLowerCase()))
-      : bundles
-    : [];
+  const filtered = search.trim()
+    ? bundles.filter((b) => b.name.toLowerCase().includes(search.toLowerCase()))
+    : bundles;
 
   const canPrev = offset > 0;
-  const canNext = bundles?.length === PAGE_SIZE;
+  const canNext = bundles.length === PAGE_SIZE;
 
   return (
     <div className="space-y-6">

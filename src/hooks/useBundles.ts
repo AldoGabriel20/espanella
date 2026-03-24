@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Bundle } from "@/types";
+import type { Bundle, PaginatedResponse } from "@/types";
 
 export const bundleKeys = {
   all: ["bundles"] as const,
@@ -8,7 +8,7 @@ export const bundleKeys = {
   detail: (id: string) => ["bundles", "detail", id] as const,
 };
 
-async function fetchBundles(params?: { limit?: number; offset?: number }): Promise<Bundle[]> {
+async function fetchBundles(params?: { limit?: number; offset?: number }): Promise<PaginatedResponse<Bundle>> {
   const q = new URLSearchParams();
   if (params?.limit !== undefined) q.set("limit", String(params.limit));
   if (params?.offset !== undefined) q.set("offset", String(params.offset));
@@ -34,10 +34,15 @@ async function fetchBundleById(id: string): Promise<Bundle> {
 }
 
 export function useBundles(params?: { limit?: number; offset?: number }) {
-  return useQuery({
+  const query = useQuery({
     queryKey: bundleKeys.list(params),
     queryFn: () => fetchBundles(params),
   });
+  return {
+    ...query,
+    bundles: query.data?.data ?? [],
+    total: query.data?.total ?? 0,
+  };
 }
 
 export function useBundle(id: string) {
