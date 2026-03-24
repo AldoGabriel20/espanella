@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm neutral base — premium operations dashboard */
+    --background: 38 30% 97%;
+    --foreground: 20 25% 10%;
+
+    --card: 38 20% 98%;
+    --card-foreground: 20 25% 10%;
+
+    --popover: 38 20% 98%;
+    --popover-foreground: 20 25% 10%;
+
+    /* Deep forest green — primary brand color */
+    --primary: 145 45% 22%;
+    --primary-foreground: 38 30% 95%;
+
+    /* Warm cream — secondary surface */
+    --secondary: 38 35% 90%;
+    --secondary-foreground: 20 25% 18%;
+
+    --muted: 38 20% 92%;
+    --muted-foreground: 20 15% 45%;
+
+    /* Brick accent */
+    --accent: 16 55% 42%;
+    --accent-foreground: 38 30% 96%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 35 20% 87%;
+    --input: 35 20% 87%;
+    --ring: 145 45% 22%;
+
+    --radius: 0.5rem;
+
+    /* Leuzien brand: muted gold */
+    --gold: 42 70% 42%;
+    --gold-foreground: 38 30% 96%;
+    --gold-light: 42 60% 90%;
+
+    /* Leuzien brand: brick red */
+    --brick: 16 55% 42%;
+    --brick-foreground: 38 30% 96%;
+    --brick-light: 16 40% 92%;
+
+    /* Leuzien brand: forest green */
+    --forest: 145 45% 22%;
+    --forest-foreground: 38 30% 95%;
+    --forest-light: 145 30% 90%;
+
+    /* Leuzien brand: cream */
+    --cream: 38 50% 93%;
+    --cream-foreground: 20 25% 18%;
+
+    /* Sidebar theme */
+    --sidebar: 145 45% 18%;
+    --sidebar-foreground: 38 30% 92%;
+    --sidebar-border: 145 35% 26%;
+    --sidebar-accent: 145 40% 26%;
+    --sidebar-accent-foreground: 38 30% 95%;
+    --sidebar-ring: 42 70% 50%;
+  }
+
+  .dark {
+    --background: 20 20% 8%;
+    --foreground: 38 25% 90%;
+
+    --card: 20 18% 11%;
+    --card-foreground: 38 25% 90%;
+
+    --popover: 20 18% 11%;
+    --popover-foreground: 38 25% 90%;
+
+    --primary: 145 40% 45%;
+    --primary-foreground: 20 20% 8%;
+
+    --secondary: 20 15% 18%;
+    --secondary-foreground: 38 25% 85%;
+
+    --muted: 20 15% 16%;
+    --muted-foreground: 20 10% 55%;
+
+    --accent: 16 50% 55%;
+    --accent-foreground: 20 20% 8%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 20 15% 20%;
+    --input: 20 15% 20%;
+    --ring: 145 40% 45%;
+
+    --gold: 42 65% 55%;
+    --gold-foreground: 20 20% 8%;
+    --gold-light: 42 30% 18%;
+
+    --brick: 16 50% 55%;
+    --brick-foreground: 20 20% 8%;
+    --brick-light: 16 25% 18%;
+
+    --forest: 145 40% 45%;
+    --forest-foreground: 20 20% 8%;
+    --forest-light: 145 20% 18%;
+
+    --cream: 38 25% 18%;
+    --cream-foreground: 38 25% 85%;
+
+    --sidebar: 20 22% 6%;
+    --sidebar-foreground: 38 25% 88%;
+    --sidebar-border: 20 18% 14%;
+    --sidebar-accent: 20 18% 14%;
+    --sidebar-accent-foreground: 38 25% 88%;
+    --sidebar-ring: 42 65% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Shimmer loading effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--secondary)) 50%,
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* Scrollbar styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 3px;
+  }
+}
+
