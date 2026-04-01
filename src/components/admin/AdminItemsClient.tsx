@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, AlertCircle, Package } from "lucide-react";
+import Image from "next/image";
+import { Plus, Pencil, Trash2, AlertCircle, Package, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -23,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/ui/page-header";
 import { ItemForm } from "@/components/admin/ItemForm";
+import { MediaManager } from "@/components/admin/MediaManager";
 import { useItems, useCreateItem, useUpdateItem, useDeleteItem } from "@/hooks/useItems";
 import { formatDate } from "@/lib/utils/date";
 import { cn } from "@/lib/utils";
@@ -68,9 +70,11 @@ export function AdminItemsClient() {
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
   async function handleCreate(values: { name: string; stock: number; unit: string; price: number }) {
-    await createItem.mutateAsync(values);
+    const created = await createItem.mutateAsync(values);
     setCreateOpen(false);
     createItem.reset();
+    // Open edit dialog so user can immediately add media to the new item.
+    setEditItem(created);
   }
 
   async function handleUpdate(values: { name: string; stock: number; unit: string; price: number }) {
@@ -116,6 +120,7 @@ export function AdminItemsClient() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
+              <TableHead className="w-12"></TableHead>
               <TableHead>Name</TableHead>
               <TableHead className="hidden sm:table-cell">Unit</TableHead>
               <TableHead>Available Stock</TableHead>
@@ -127,6 +132,7 @@ export function AdminItemsClient() {
             {isLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <TableRow key={i}>
+                  <TableCell><div className="w-8 h-8 rounded bg-muted animate-pulse" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-36" /></TableCell>
                   <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-12" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-28" /></TableCell>
@@ -136,7 +142,7 @@ export function AdminItemsClient() {
               ))
             ) : items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-40 text-center">
+                <TableCell colSpan={6} className="h-40 text-center">
                   <div className="flex flex-col items-center gap-3">
                     <Package className="h-8 w-8 text-muted-foreground/30" />
                     <p className="text-sm text-muted-foreground">No items yet</p>
@@ -155,6 +161,23 @@ export function AdminItemsClient() {
                     item.availableStock > 0 && item.availableStock <= 5 && "bg-amber-50/50"
                   )}
                 >
+                  {/* Thumbnail */}
+                  <TableCell>
+                    <div className="w-8 h-8 rounded overflow-hidden bg-muted flex items-center justify-center shrink-0">
+                      {item.primaryImageUrl ? (
+                        <Image
+                          src={item.primaryImageUrl}
+                          alt={item.name}
+                          width={32}
+                          height={32}
+                          className="object-cover w-full h-full"
+                          unoptimized
+                        />
+                      ) : (
+                        <ImageIcon className="h-4 w-4 text-muted-foreground/40" />
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="font-medium">{item.name}</TableCell>
                   <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">
                     {item.unit}
@@ -206,7 +229,7 @@ export function AdminItemsClient() {
           <DialogHeader>
             <DialogTitle>Add Item</DialogTitle>
             <DialogDescription>
-              Create a new catalog item. Stock can be adjusted via stock movements after creation.
+              Create a new catalog item. You can add photos and videos after saving.
             </DialogDescription>
           </DialogHeader>
           <ItemForm
@@ -226,7 +249,7 @@ export function AdminItemsClient() {
           if (!open) { updateItem.reset(); setEditItem(null); }
         }}
       >
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Item</DialogTitle>
             <DialogDescription>
@@ -234,14 +257,20 @@ export function AdminItemsClient() {
             </DialogDescription>
           </DialogHeader>
           {editItem && (
-            <ItemForm
-              defaultValues={{ name: editItem.name, stock: editItem.stock, unit: editItem.unit, price: editItem.price }}
-              onSubmit={handleUpdate}
-              isPending={updateItem.isPending}
-              error={updateItem.error as Error | null}
-              submitLabel="Save Changes"
-              onCancel={() => { updateItem.reset(); setEditItem(null); }}
-            />
+            <div className="space-y-6">
+              <ItemForm
+                defaultValues={{ name: editItem.name, stock: editItem.stock, unit: editItem.unit, price: editItem.price }}
+                onSubmit={handleUpdate}
+                isPending={updateItem.isPending}
+                error={updateItem.error as Error | null}
+                submitLabel="Save Changes"
+                onCancel={() => { updateItem.reset(); setEditItem(null); }}
+              />
+              <div className="border-t pt-4 space-y-3">
+                <p className="text-sm font-medium">Media</p>
+                <MediaManager itemId={editItem.id} />
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>

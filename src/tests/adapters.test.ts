@@ -42,6 +42,10 @@ const rawItem: RawItem = {
   ReservedStock: 30,
   Unit: "box",
   Price: 150000,
+  PrimaryImageURL: null,
+  HasVideo: false,
+  MediaCount: 0,
+  Media: [],
   CreatedAt: NOW,
   UpdatedAt: NOW,
 };

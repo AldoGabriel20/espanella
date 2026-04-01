@@ -52,6 +52,10 @@ const itemFixture: Item = {
   availableStock: 80,
   unit: "box",
   price: 0,
+  primaryImageUrl: null,
+  hasVideo: false,
+  mediaCount: 0,
+  media: [],
   createdAt: NOW,
   updatedAt: NOW,
 };

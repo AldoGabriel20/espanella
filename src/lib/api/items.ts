@@ -13,12 +13,20 @@ import type { Item, PaginatedResponse } from "@/types";
 export type ItemsListParams = {
   limit?: number;
   offset?: number;
+  sortBy?: "price_asc" | "price_desc" | "updated_at_asc" | "updated_at_desc" | "name_desc" | "most_ordered";
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
 };
 
 function buildQuery(params: ItemsListParams): string {
   const q = new URLSearchParams();
   if (params.limit !== undefined) q.set("limit", String(params.limit));
   if (params.offset !== undefined) q.set("offset", String(params.offset));
+  if (params.sortBy) q.set("sort_by", params.sortBy);
+  if (params.minPrice !== undefined) q.set("min_price", String(params.minPrice));
+  if (params.maxPrice !== undefined) q.set("max_price", String(params.maxPrice));
+  if (params.inStock) q.set("in_stock", "true");
   const s = q.toString();
   return s ? `?${s}` : "";
 }

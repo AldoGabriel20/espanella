@@ -19,6 +19,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       name: data.name,
       stock: data.stock,
       unit: data.unit,
+      price: data.price ?? 0,
     });
     return NextResponse.json(item);
   } catch (err) {

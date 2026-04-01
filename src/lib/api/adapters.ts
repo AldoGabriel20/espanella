@@ -15,6 +15,7 @@
 import type {
   RawUser,
   RawItem,
+  RawItemMedia,
   RawBundleItem,
   RawBundle,
   RawOrderItem,
@@ -28,6 +29,7 @@ import type {
 import type {
   User,
   Item,
+  ItemMedia,
   BundleItem,
   Bundle,
   OrderItem,
@@ -52,6 +54,28 @@ export function adaptUser(raw: RawUser): User {
 
 // ─── Items ────────────────────────────────────────────────────────────────────
 
+export function adaptItemMedia(raw: RawItemMedia): ItemMedia {
+  return {
+    id: raw.ID,
+    itemId: raw.ItemID,
+    mediaType: raw.MediaType,
+    storageBucket: raw.StorageBucket,
+    storagePath: raw.StoragePath,
+    url: raw.PublicURL,
+    mimeType: raw.MIMEType,
+    fileSizeBytes: raw.FileSizeBytes,
+    width: raw.Width,
+    height: raw.Height,
+    durationSeconds: raw.DurationSeconds,
+    altText: raw.AltText,
+    sortOrder: raw.SortOrder,
+    isPrimary: raw.IsPrimary,
+    status: raw.Status,
+    createdAt: raw.CreatedAt,
+    updatedAt: raw.UpdatedAt,
+  };
+}
+
 export function adaptItem(raw: RawItem): Item {
   const stock = raw.Stock;
   const reservedStock = raw.ReservedStock;
@@ -63,6 +87,10 @@ export function adaptItem(raw: RawItem): Item {
     availableStock: Math.max(0, stock - reservedStock),
     unit: raw.Unit,
     price: raw.Price ?? 0,
+    primaryImageUrl: raw.PrimaryImageURL ?? null,
+    hasVideo: raw.HasVideo ?? false,
+    mediaCount: raw.MediaCount ?? 0,
+    media: (raw.Media ?? []).map(adaptItemMedia),
     createdAt: raw.CreatedAt,
     updatedAt: raw.UpdatedAt,
   };

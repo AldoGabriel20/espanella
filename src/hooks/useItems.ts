@@ -1,17 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Item, PaginatedResponse } from "@/types";
+import type { ItemsListParams } from "@/lib/api/items";
 
 export const itemKeys = {
   all: ["items"] as const,
-  list: (params?: { limit?: number; offset?: number }) =>
+  list: (params?: ItemsListParams) =>
     ["items", "list", params] as const,
   detail: (id: string) => ["items", "detail", id] as const,
 };
 
-async function fetchItems(params?: { limit?: number; offset?: number }): Promise<PaginatedResponse<Item>> {
+async function fetchItems(params?: ItemsListParams): Promise<PaginatedResponse<Item>> {
   const q = new URLSearchParams();
   if (params?.limit !== undefined) q.set("limit", String(params.limit));
   if (params?.offset !== undefined) q.set("offset", String(params.offset));
+  if (params?.sortBy) q.set("sort_by", params.sortBy);
+  if (params?.minPrice !== undefined) q.set("min_price", String(params.minPrice));
+  if (params?.maxPrice !== undefined) q.set("max_price", String(params.maxPrice));
+  if (params?.inStock) q.set("in_stock", "true");
   const url = `/api/catalog/items${q.toString() ? `?${q}` : ""}`;
 
   const res = await fetch(url);
@@ -31,7 +36,7 @@ async function fetchItemById(id: string): Promise<Item> {
   return res.json();
 }
 
-export function useItems(params?: { limit?: number; offset?: number }) {
+export function useItems(params?: ItemsListParams) {
   const query = useQuery({
     queryKey: itemKeys.list(params),
     queryFn: () => fetchItems(params),

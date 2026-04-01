@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Package, Boxes, ShoppingCart, AlertTriangle, Clock, TrendingUp } from "lucide-react";
+import { Package, Boxes, ShoppingCart, AlertTriangle, Clock, ShoppingBag, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useItems } from "@/hooks/useItems";
@@ -132,25 +132,32 @@ export function DashboardClient({ user }: DashboardClientProps) {
       </div>
 
       {/* Metrics grid */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <MetricCard
-          title="Total Items"
-          value={totalItems}
-          icon={Package}
-          loading={metricsLoading}
-          href="/catalog/items"
-        />
-        <MetricCard
-          title="Total Bundles"
-          value={totalBundles}
-          icon={Boxes}
-          loading={metricsLoading}
-          href="/catalog/bundles"
-        />
+      <div className={cn(
+        "grid gap-4",
+        isAdmin ? "grid-cols-2 lg:grid-cols-4" : "grid-cols-2"
+      )}>
+        {isAdmin && (
+          <>
+            <MetricCard
+              title="Total Items"
+              value={totalItems}
+              icon={Package}
+              loading={metricsLoading}
+              href="/catalog/items"
+            />
+            <MetricCard
+              title="Total Bundles"
+              value={totalBundles}
+              icon={Boxes}
+              loading={metricsLoading}
+              href="/catalog/bundles"
+            />
+          </>
+        )}
         <MetricCard
           title="Total Orders"
           value={totalOrders}
-          icon={ShoppingCart}
+          icon={ShoppingBag}
           loading={metricsLoading}
           href="/orders"
         />
@@ -165,9 +172,12 @@ export function DashboardClient({ user }: DashboardClientProps) {
       </div>
 
       {/* Two-column panels */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Low Stock */}
-        <Card>
+      <div className={cn(
+        "grid grid-cols-1 gap-6",
+        isAdmin && "lg:grid-cols-2"
+      )}>
+        {/* Low Stock — admin only */}
+        {isAdmin && <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-base">
@@ -225,7 +235,7 @@ export function DashboardClient({ user }: DashboardClientProps) {
               </ul>
             )}
           </CardContent>
-        </Card>
+        </Card>}
 
         {/* Recent Orders */}
         <Card>

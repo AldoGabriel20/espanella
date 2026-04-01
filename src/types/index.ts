@@ -15,6 +15,29 @@ export type Session = {
   accessTokenExpiresAt: string;
 };
 
+// Item media types
+export type ItemMediaStatus = "pending" | "ready" | "failed" | "deleted";
+
+export type ItemMedia = {
+  id: string;
+  itemId: string;
+  mediaType: "image" | "video";
+  storageBucket: string;
+  storagePath: string;
+  url: string;
+  mimeType: string;
+  fileSizeBytes: number;
+  width: number | null;
+  height: number | null;
+  durationSeconds: number | null;
+  altText: string | null;
+  sortOrder: number;
+  isPrimary: boolean;
+  status: ItemMediaStatus;
+  createdAt: string;
+  updatedAt: string;
+};
+
 // Item types
 export type Item = {
   id: string;
@@ -24,6 +47,10 @@ export type Item = {
   availableStock: number;
   unit: string;
   price: number;
+  primaryImageUrl: string | null;
+  hasVideo: boolean;
+  mediaCount: number;
+  media: ItemMedia[];
   createdAt: string;
   updatedAt: string;
 };

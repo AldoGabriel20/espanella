@@ -60,6 +60,27 @@ export function pagedResponseSchema<T extends z.ZodTypeAny>(itemSchema: T) {
 
 // ─── Items (PascalCase) ───────────────────────────────────────────────────────
 
+export const RawItemMediaSchema = z.object({
+  ID: z.string(),
+  ItemID: z.string(),
+  MediaType: z.enum(["image", "video"]),
+  StorageBucket: z.string(),
+  StoragePath: z.string(),
+  PublicURL: z.string(),
+  MIMEType: z.string(),
+  FileSizeBytes: z.number(),
+  Width: z.number().nullable().default(null),
+  Height: z.number().nullable().default(null),
+  DurationSeconds: z.number().nullable().default(null),
+  AltText: z.string().nullable().default(null),
+  SortOrder: z.number().int(),
+  IsPrimary: z.boolean(),
+  Status: z.enum(["pending", "ready", "failed", "deleted"]),
+  CreatedAt: isoDateString,
+  UpdatedAt: isoDateString,
+});
+export type RawItemMedia = z.infer<typeof RawItemMediaSchema>;
+
 export const RawItemSchema = z.object({
   ID: z.string(),
   Name: z.string(),
@@ -67,6 +88,10 @@ export const RawItemSchema = z.object({
   ReservedStock: z.number().int().min(0),
   Unit: z.string(),
   Price: z.number().min(0).default(0),
+  PrimaryImageURL: z.string().nullable().default(null),
+  HasVideo: z.boolean().default(false),
+  MediaCount: z.number().int().min(0).default(0),
+  Media: z.array(RawItemMediaSchema).nullable().default([]),
   CreatedAt: isoDateString,
   UpdatedAt: isoDateString,
 });
