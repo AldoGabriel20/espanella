@@ -274,3 +274,76 @@ export const RawNotificationListSchema = pagedResponseSchema(RawNotificationLogS
 export type RawNotificationList = z.infer<typeof RawNotificationListSchema>;
 
 export { orderStatusValues, notificationStatusValues };
+
+// ─── Fulfillment batches (PascalCase — no json tags on domain structs) ────────
+
+const batchStatusValues = ["draft", "in_progress", "completed", "cancelled"] as const;
+const batchComplexityValues = ["light", "medium", "heavy"] as const;
+
+export const RawBatchItemSnapshotSchema = z.object({
+  ID: z.string(),
+  BatchID: z.string(),
+  ItemID: z.string(),
+  ItemName: z.string(),
+  RequiredQuantity: z.number().int().min(1),
+  CreatedAt: isoDateString,
+});
+export type RawBatchItemSnapshot = z.infer<typeof RawBatchItemSnapshotSchema>;
+
+export const RawFulfillmentBatchOrderSchema = z.object({
+  ID: z.string(),
+  BatchID: z.string(),
+  OrderID: z.string(),
+  SortOrder: z.number().int().min(0),
+  CreatedAt: isoDateString,
+  Order: z.lazy(() => RawOrderSchema).nullable().default(null),
+});
+export type RawFulfillmentBatchOrder = z.infer<typeof RawFulfillmentBatchOrderSchema>;
+
+export const RawFulfillmentBatchSchema = z.object({
+  ID: z.string(),
+  BatchDate: isoDateString,
+  Name: z.string(),
+  Status: z.enum(batchStatusValues),
+  RecommendationScore: z.number().min(0).max(100),
+  RationaleSummary: z.string(),
+  TotalOrders: z.number().int().min(0),
+  TotalUnits: z.number().int().min(0),
+  CreatedAt: isoDateString,
+  UpdatedAt: isoDateString,
+  Orders: z.array(RawFulfillmentBatchOrderSchema).nullable().default([]),
+  Items: z.array(RawBatchItemSnapshotSchema).nullable().default([]),
+});
+export type RawFulfillmentBatch = z.infer<typeof RawFulfillmentBatchSchema>;
+
+export const RawFulfillmentBatchListSchema = pagedResponseSchema(RawFulfillmentBatchSchema);
+export type RawFulfillmentBatchList = z.infer<typeof RawFulfillmentBatchListSchema>;
+
+export const RawAggregatedPickItemSchema = z.object({
+  ItemID: z.string(),
+  ItemName: z.string(),
+  RequiredQuantity: z.number().int().min(0),
+});
+export type RawAggregatedPickItem = z.infer<typeof RawAggregatedPickItemSchema>;
+
+export const RawBatchRecommendationSchema = z.object({
+  BatchKey: z.string(),
+  DeliveryDate: isoDateString,
+  RecommendationScore: z.number().min(0).max(100),
+  RationaleSummary: z.string(),
+  Orders: z.array(RawOrderSchema).nullable().default([]),
+  AggregatedItems: z.array(RawAggregatedPickItemSchema).nullable().default([]),
+  TotalOrders: z.number().int().min(0),
+  TotalUnits: z.number().int().min(0),
+  ComplexityLevel: z.enum(batchComplexityValues).default("light"),
+  Warnings: z.array(z.string()).nullable().default([]),
+});
+export type RawBatchRecommendation = z.infer<typeof RawBatchRecommendationSchema>;
+
+export const RawRecommendationsResponseSchema = z.object({
+  data: z.array(RawBatchRecommendationSchema),
+  total: z.number().int().min(0),
+});
+export type RawRecommendationsResponse = z.infer<typeof RawRecommendationsResponseSchema>;
+
+export { batchStatusValues, batchComplexityValues };

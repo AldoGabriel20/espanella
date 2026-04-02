@@ -266,3 +266,96 @@ export function joinBundleItemNames(
 export function buildItemMap(items: Item[]): Map<string, Item> {
   return new Map(items.map((item) => [item.id, item]));
 }
+
+// ─── Fulfillment batches ──────────────────────────────────────────────────────
+
+import type {
+  RawBatchItemSnapshot,
+  RawFulfillmentBatchOrder,
+  RawFulfillmentBatch,
+  RawAggregatedPickItem,
+  RawBatchRecommendation,
+  RawRecommendationsResponse,
+} from "./schemas";
+
+import type {
+  BatchItemSnapshot,
+  FulfillmentBatchOrder,
+  FulfillmentBatch,
+  AggregatedPickItem,
+  BatchRecommendation,
+  RecommendationsResponse,
+} from "@/types";
+
+export function adaptBatchItemSnapshot(raw: RawBatchItemSnapshot): BatchItemSnapshot {
+  return {
+    id: raw.ID,
+    batchId: raw.BatchID,
+    itemId: raw.ItemID,
+    itemName: raw.ItemName,
+    requiredQuantity: raw.RequiredQuantity,
+    createdAt: raw.CreatedAt,
+  };
+}
+
+export function adaptFulfillmentBatchOrder(raw: RawFulfillmentBatchOrder): FulfillmentBatchOrder {
+  return {
+    id: raw.ID,
+    batchId: raw.BatchID,
+    orderId: raw.OrderID,
+    sortOrder: raw.SortOrder,
+    createdAt: raw.CreatedAt,
+    order: raw.Order ? adaptOrder(raw.Order) : null,
+  };
+}
+
+export function adaptFulfillmentBatch(raw: RawFulfillmentBatch): FulfillmentBatch {
+  return {
+    id: raw.ID,
+    batchDate: raw.BatchDate,
+    name: raw.Name,
+    status: raw.Status,
+    recommendationScore: raw.RecommendationScore,
+    rationaleSummary: raw.RationaleSummary,
+    totalOrders: raw.TotalOrders,
+    totalUnits: raw.TotalUnits,
+    createdAt: raw.CreatedAt,
+    updatedAt: raw.UpdatedAt,
+    orders: (raw.Orders ?? []).map(adaptFulfillmentBatchOrder),
+    items: (raw.Items ?? []).map(adaptBatchItemSnapshot),
+  };
+}
+
+export function adaptFulfillmentBatchList(raws: RawFulfillmentBatch[]): FulfillmentBatch[] {
+  return raws.map(adaptFulfillmentBatch);
+}
+
+export function adaptAggregatedPickItem(raw: RawAggregatedPickItem): AggregatedPickItem {
+  return {
+    itemId: raw.ItemID,
+    itemName: raw.ItemName,
+    requiredQuantity: raw.RequiredQuantity,
+  };
+}
+
+export function adaptBatchRecommendation(raw: RawBatchRecommendation): BatchRecommendation {
+  return {
+    batchKey: raw.BatchKey,
+    deliveryDate: raw.DeliveryDate,
+    recommendationScore: raw.RecommendationScore,
+    rationaleSummary: raw.RationaleSummary,
+    orders: (raw.Orders ?? []).map(adaptOrder),
+    aggregatedItems: (raw.AggregatedItems ?? []).map(adaptAggregatedPickItem),
+    totalOrders: raw.TotalOrders,
+    totalUnits: raw.TotalUnits,
+    complexityLevel: raw.ComplexityLevel,
+    warnings: raw.Warnings ?? [],
+  };
+}
+
+export function adaptRecommendationsResponse(raw: RawRecommendationsResponse): RecommendationsResponse {
+  return {
+    data: raw.data.map(adaptBatchRecommendation),
+    total: raw.total,
+  };
+}

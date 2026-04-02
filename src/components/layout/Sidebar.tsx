@@ -13,6 +13,7 @@ import {
   Boxes,
   ChevronDown,
   Leaf,
+  Truck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -58,6 +59,7 @@ const adminNavItems: NavItem[] = [
       { title: "Items", href: "/admin/items", icon: Boxes },
       { title: "Bundles", href: "/admin/bundles", icon: PackageOpen },
       { title: "Orders", href: "/admin/orders", icon: ShoppingBag },
+      { title: "Fulfillment", href: "/admin/fulfillment", icon: Truck },
       { title: "Stock Audit", href: "/admin/stock", icon: BarChart3 },
     ],
   },

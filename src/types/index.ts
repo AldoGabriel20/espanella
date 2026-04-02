@@ -163,6 +163,78 @@ export type ApiError = {
   details?: string;
 };
 
+// ─── Fulfillment batch types ──────────────────────────────────────────────────
+
+export type BatchStatus = "draft" | "in_progress" | "completed" | "cancelled";
+export type BatchComplexity = "light" | "medium" | "heavy";
+
+export type BatchItemSnapshot = {
+  id: string;
+  batchId: string;
+  itemId: string;
+  itemName: string;
+  requiredQuantity: number;
+  createdAt: string;
+};
+
+export type FulfillmentBatchOrder = {
+  id: string;
+  batchId: string;
+  orderId: string;
+  sortOrder: number;
+  createdAt: string;
+  order: Order | null;
+};
+
+export type FulfillmentBatch = {
+  id: string;
+  batchDate: string;
+  name: string;
+  status: BatchStatus;
+  recommendationScore: number;
+  rationaleSummary: string;
+  totalOrders: number;
+  totalUnits: number;
+  createdAt: string;
+  updatedAt: string;
+  orders: FulfillmentBatchOrder[];
+  items: BatchItemSnapshot[];
+};
+
+export type AggregatedPickItem = {
+  itemId: string;
+  itemName: string;
+  requiredQuantity: number;
+};
+
+export type BatchRecommendation = {
+  batchKey: string;
+  deliveryDate: string;
+  recommendationScore: number;
+  rationaleSummary: string;
+  orders: Order[];
+  aggregatedItems: AggregatedPickItem[];
+  totalOrders: number;
+  totalUnits: number;
+  complexityLevel: BatchComplexity;
+  warnings: string[];
+};
+
+export type RecommendationsResponse = {
+  data: BatchRecommendation[];
+  total: number;
+};
+
+export type CreateBatchPayload = {
+  name?: string;
+  order_ids: string[];
+  recommendation?: BatchRecommendation;
+};
+
+export type UpdateBatchStatusPayload = {
+  status: BatchStatus;
+};
+
 // Form request types
 export type LoginRequest = {
   email: string;
