@@ -15,6 +15,7 @@ import { MobileNav } from "./MobileNav";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { LogoutButton } from "@/components/auth/LogoutButton";
+import { NotificationBell } from "./NotificationBell";
 
 type BreadcrumbItem = {
   title: string;
@@ -86,21 +87,18 @@ export function Topbar({
           </Badge>
         )}
 
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Notifications"
-          className="text-muted-foreground hover:text-foreground"
-          asChild={role === "admin"}
-        >
-          {role === "admin" ? (
-            <Link href="/admin/notifications">
-              <Bell className="h-4.5 w-4.5" />
-            </Link>
-          ) : (
+        {role === "admin" ? (
+          <NotificationBell />
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Notifications"
+            className="text-muted-foreground hover:text-foreground"
+          >
             <Bell className="h-4.5 w-4.5" />
-          )}
-        </Button>
+          </Button>
+        )}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
