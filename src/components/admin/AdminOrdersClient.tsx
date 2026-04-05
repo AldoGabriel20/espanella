@@ -28,7 +28,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/ui/page-header";
-import { OrderStatusBadge, STATUS_CONFIG } from "@/components/orders/OrderStatusBadge";
+import { STATUS_CONFIG } from "@/components/orders/OrderStatusBadge";
 import { InvoiceActions } from "@/components/admin/InvoiceActions";
 import { useOrders, useUpdateOrderStatus } from "@/hooks/useOrders";
 import { formatDate } from "@/lib/utils/date";

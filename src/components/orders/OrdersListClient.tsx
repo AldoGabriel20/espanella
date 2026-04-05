@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Plus, ChevronLeft, ChevronRight, AlertCircle, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert } from "@/components/ui/alert";
 import {
   Table,
   TableBody,

@@ -319,6 +319,7 @@ describe("RawOrderSchema", () => {
   });
 
   it("defaults InvoiceSignedURL null when omitted", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { InvoiceSignedURL: _, ...withoutInvoice } = baseOrder;
     const result = RawOrderSchema.safeParse(withoutInvoice);
     expect(result.success).toBe(true);
