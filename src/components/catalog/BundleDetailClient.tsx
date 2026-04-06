@@ -167,7 +167,7 @@ function buildItemMap(items: Item[]): Map<string, Item> {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function BundleDetailClient({ id, isAdmin }: BundleDetailClientProps) {
+export function BundleDetailClient({ id }: BundleDetailClientProps) {
   const { data: bundle, isLoading: bundleLoading, isError, error } = useBundle(id);
   const { data: mediaItems = [] } = useBundleMedia(id);
   const { items, isLoading: itemsLoading } = useItems({ limit: 200 });

@@ -153,7 +153,7 @@ function DetailSkeleton() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function ItemDetailClient({ id, isAdmin }: ItemDetailClientProps) {
+export function ItemDetailClient({ id }: ItemDetailClientProps) {
   const { data: item, isLoading, isError, error } = useItem(id);
 
   if (isLoading) return <DetailSkeleton />;
