@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert } from "@/components/ui/alert";
@@ -14,6 +14,9 @@ type FormState = {
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const resetSuccess = searchParams.get("reset") === "success";
+
   const [form, setForm] = React.useState<FormState>({ email: "", password: "" });
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
@@ -59,6 +62,14 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      {resetSuccess && (
+        <Alert>
+          <p className="text-sm">
+            Password reset successfully. Please sign in with your new password.
+          </p>
+        </Alert>
+      )}
+
       {error && (
         <Alert variant="destructive">
           <p className="text-sm">{error}</p>
@@ -83,12 +94,20 @@ export function LoginForm() {
       </div>
 
       <div className="space-y-2">
-        <label
-          htmlFor="password"
-          className="text-sm font-medium text-foreground"
-        >
-          Password
-        </label>
+        <div className="flex items-center justify-between">
+          <label
+            htmlFor="password"
+            className="text-sm font-medium text-foreground"
+          >
+            Password
+          </label>
+          <Link
+            href="/forgot-password"
+            className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <Input
           id="password"
           name="password"

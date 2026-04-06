@@ -15,8 +15,8 @@ const ACCESS_EXPIRY_COOKIE = "lz_access_exp";
 const isProd = process.env.NODE_ENV === "production";
 
 // Max cookie ages in seconds
-const ACCESS_TOKEN_MAX_AGE = 60 * 15; // 15 minutes (aligned with backend default)
-const REFRESH_TOKEN_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+const ACCESS_TOKEN_MAX_AGE = 60 * 60 * 24; // 1 day (aligned with backend default)
+const REFRESH_TOKEN_MAX_AGE = 60 * 60 * 24 * 30; // 30 days (aligned with backend refresh token TTL)
 
 export type TokenPair = {
   accessToken: string;
