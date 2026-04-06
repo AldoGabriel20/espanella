@@ -58,7 +58,7 @@ export function useItem(id: string) {
 
 // ─── Mutation types ───────────────────────────────────────────────────────────
 
-export type CreateItemInput = { name: string; stock: number; unit: string; price: number };
+export type CreateItemInput = { name: string; description?: string; stock: number; unit: string; price: number };
 export type UpdateItemInput = Partial<CreateItemInput>;
 
 // ─── Mutation hooks ───────────────────────────────────────────────────────────

@@ -13,12 +13,20 @@ import type { Bundle, PaginatedResponse } from "@/types";
 export type BundlesListParams = {
   limit?: number;
   offset?: number;
+  sortBy?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
 };
 
 function buildQuery(params: BundlesListParams): string {
   const q = new URLSearchParams();
   if (params.limit !== undefined) q.set("limit", String(params.limit));
   if (params.offset !== undefined) q.set("offset", String(params.offset));
+  if (params.sortBy) q.set("sort_by", params.sortBy);
+  if (params.minPrice !== undefined) q.set("min_price", String(params.minPrice));
+  if (params.maxPrice !== undefined) q.set("max_price", String(params.maxPrice));
+  if (params.inStock !== undefined) q.set("in_stock", String(params.inStock));
   const s = q.toString();
   return s ? `?${s}` : "";
 }
@@ -50,6 +58,9 @@ export type BundleItemInput = {
 
 export type CreateBundleBody = {
   name: string;
+  description?: string;
+  price?: number;
+  stock?: number;
   items: BundleItemInput[];
 };
 

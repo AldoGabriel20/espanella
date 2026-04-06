@@ -42,6 +42,7 @@ export type ItemMedia = {
 export type Item = {
   id: string;
   name: string;
+  description: string | null;
   stock: number;
   reservedStock: number;
   availableStock: number;
@@ -63,11 +64,43 @@ export type BundleItem = {
   quantity: number;
 };
 
+export type BundleMediaStatus = "pending" | "ready" | "failed" | "deleted";
+
+export type BundleMedia = {
+  id: string;
+  bundleId: string;
+  mediaType: "image" | "video";
+  storageBucket: string;
+  storagePath: string;
+  url: string;
+  mimeType: string;
+  fileSizeBytes: number;
+  width: number | null;
+  height: number | null;
+  durationSeconds: number | null;
+  altText: string | null;
+  sortOrder: number;
+  isPrimary: boolean;
+  status: BundleMediaStatus;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type Bundle = {
   id: string;
   name: string;
+  description: string | null;
+  price: number;
+  stock: number;
+  reservedStock: number;
+  availableStock: number;
+  primaryImageUrl: string | null;
+  hasVideo: boolean;
+  mediaCount: number;
+  media: BundleMedia[];
   items: BundleItem[];
   createdAt: string;
+  updatedAt: string;
 };
 
 // Order types

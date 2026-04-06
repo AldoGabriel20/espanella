@@ -7,8 +7,13 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get("limit") ? Number(searchParams.get("limit")) : undefined;
     const offset = searchParams.get("offset") ? Number(searchParams.get("offset")) : undefined;
+    const sortBy = searchParams.get("sort_by") ?? undefined;
+    const minPrice = searchParams.get("min_price") ? Number(searchParams.get("min_price")) : undefined;
+    const maxPrice = searchParams.get("max_price") ? Number(searchParams.get("max_price")) : undefined;
+    const inStockRaw = searchParams.get("in_stock");
+    const inStock = inStockRaw !== null ? inStockRaw === "true" : undefined;
 
-    const bundles = await getBundles({ limit, offset });
+    const bundles = await getBundles({ limit, offset, sortBy, minPrice, maxPrice, inStock });
     return NextResponse.json(bundles);
   } catch (err) {
     const { status, message } = normalizeError(err);
@@ -23,6 +28,9 @@ export async function POST(request: Request) {
     const data = await request.json();
     const bundle = await createBundle({
       name: data.name,
+      description: data.description,
+      price: typeof data.price === "number" ? data.price : undefined,
+      stock: typeof data.stock === "number" ? data.stock : undefined,
       items: (data.items as BundleLineInput[]).map((line) => ({
         item_id: line.itemId,
         quantity: line.quantity,

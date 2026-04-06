@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 
 const ItemSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  description: z.string().optional(),
   stock: z.number().int().min(0, "Must be 0 or more"),
   unit: z.string().min(1, "Unit is required"),
   price: z.number().min(0, "Must be 0 or more"),
@@ -52,6 +53,7 @@ export function ItemForm({
     resolver: zodResolver(ItemSchema),
     defaultValues: {
       name: defaultValues?.name ?? "",
+      description: defaultValues?.description ?? "",
       stock: defaultValues?.stock ?? 0,
       unit: defaultValues?.unit ?? "",
       price: defaultValues?.price ?? 0,
@@ -62,10 +64,12 @@ export function ItemForm({
   useEffect(() => {
     reset({
       name: defaultValues?.name ?? "",
+      description: defaultValues?.description ?? "",
       stock: defaultValues?.stock ?? 0,
       unit: defaultValues?.unit ?? "",
       price: defaultValues?.price ?? 0,
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultValues?.name, defaultValues?.stock, defaultValues?.unit, defaultValues?.price, reset]);
 
   return (
@@ -91,6 +95,18 @@ export function ItemForm({
         {errors.name && (
           <p className="text-xs text-red-500">{errors.name.message}</p>
         )}
+      </div>
+
+      {/* Description */}
+      <div className="space-y-1.5">
+        <Label htmlFor="item-description">Description <span className="text-muted-foreground font-normal">(optional)</span></Label>
+        <textarea
+          id="item-description"
+          rows={3}
+          placeholder="Brief description of this item…"
+          {...register("description")}
+          className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+        />
       </div>
 
       {/* Stock + Unit */}

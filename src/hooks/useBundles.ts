@@ -3,15 +3,28 @@ import type { Bundle, PaginatedResponse } from "@/types";
 
 export const bundleKeys = {
   all: ["bundles"] as const,
-  list: (params?: { limit?: number; offset?: number }) =>
+  list: (params?: BundleListParams) =>
     ["bundles", "list", params] as const,
   detail: (id: string) => ["bundles", "detail", id] as const,
 };
 
-async function fetchBundles(params?: { limit?: number; offset?: number }): Promise<PaginatedResponse<Bundle>> {
+export type BundleListParams = {
+  limit?: number;
+  offset?: number;
+  sortBy?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+};
+
+async function fetchBundles(params?: BundleListParams): Promise<PaginatedResponse<Bundle>> {
   const q = new URLSearchParams();
   if (params?.limit !== undefined) q.set("limit", String(params.limit));
   if (params?.offset !== undefined) q.set("offset", String(params.offset));
+  if (params?.sortBy) q.set("sort_by", params.sortBy);
+  if (params?.minPrice !== undefined) q.set("min_price", String(params.minPrice));
+  if (params?.maxPrice !== undefined) q.set("max_price", String(params.maxPrice));
+  if (params?.inStock !== undefined) q.set("in_stock", String(params.inStock));
   const url = `/api/catalog/bundles${q.toString() ? `?${q}` : ""}`;
 
   const res = await fetch(url);
@@ -33,7 +46,7 @@ async function fetchBundleById(id: string): Promise<Bundle> {
   return res.json();
 }
 
-export function useBundles(params?: { limit?: number; offset?: number }) {
+export function useBundles(params?: BundleListParams) {
   const query = useQuery({
     queryKey: bundleKeys.list(params),
     queryFn: () => fetchBundles(params),
@@ -56,7 +69,13 @@ export function useBundle(id: string) {
 // ─── Mutation types ───────────────────────────────────────────────────────────
 
 export type BundleLineInput = { itemId: string; quantity: number };
-export type CreateBundleInput = { name: string; items: BundleLineInput[] };
+export type CreateBundleInput = {
+  name: string;
+  description?: string;
+  price?: number;
+  stock?: number;
+  items: BundleLineInput[];
+};
 export type UpdateBundleInput = Partial<CreateBundleInput>;
 
 // ─── Mutation hooks ───────────────────────────────────────────────────────────

@@ -25,6 +25,7 @@ export async function POST(request: Request) {
     const data = await request.json();
     const item = await createItem({
       name: data.name,
+      description: data.description,
       stock: data.stock,
       unit: data.unit,
       price: data.price ?? 0,

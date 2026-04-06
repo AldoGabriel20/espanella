@@ -24,6 +24,9 @@ const BundleLineSchema = z.object({
 
 const BundleSchema = z.object({
   name: z.string().min(1, "Bundle name is required"),
+  description: z.string().optional(),
+  price: z.number().min(0, "Price cannot be negative"),
+  stock: z.number().int().min(0, "Stock cannot be negative"),
   items: z.array(BundleLineSchema).min(1, "Add at least one item line"),
 });
 
@@ -62,6 +65,9 @@ export function BundleForm({
     resolver: zodResolver(BundleSchema),
     defaultValues: {
       name: defaultValues?.name ?? "",
+      description: defaultValues?.description ?? "",
+      price: defaultValues?.price ?? 0,
+      stock: defaultValues?.stock ?? 0,
       items: defaultValues?.items?.length
         ? defaultValues.items
         : [{ itemId: "", quantity: 1 }],
@@ -77,6 +83,9 @@ export function BundleForm({
   useEffect(() => {
     reset({
       name: defaultValues?.name ?? "",
+      description: defaultValues?.description ?? "",
+      price: defaultValues?.price ?? 0,
+      stock: defaultValues?.stock ?? 0,
       items: defaultValues?.items?.length
         ? defaultValues.items
         : [{ itemId: "", quantity: 1 }],
@@ -107,6 +116,52 @@ export function BundleForm({
         {errors.name && (
           <p className="text-xs text-red-500">{errors.name.message}</p>
         )}
+      </div>
+
+      {/* Description */}
+      <div className="space-y-1.5">
+        <Label htmlFor="bundle-description">Description <span className="text-muted-foreground font-normal">(optional)</span></Label>
+        <textarea
+          id="bundle-description"
+          rows={3}
+          placeholder="Brief description of this bundle…"
+          {...register("description")}
+          className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+        />
+      </div>
+
+      {/* Price + Stock */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="bundle-price">Price (IDR)</Label>
+          <Input
+            id="bundle-price"
+            type="number"
+            min="0"
+            step="1000"
+            placeholder="0"
+            {...register("price", { valueAsNumber: true })}
+            className={cn(errors.price && "border-red-400")}
+          />
+          {errors.price && (
+            <p className="text-xs text-red-500">{errors.price.message}</p>
+          )}
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="bundle-stock">Stock</Label>
+          <Input
+            id="bundle-stock"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="0"
+            {...register("stock", { valueAsNumber: true })}
+            className={cn(errors.stock && "border-red-400")}
+          />
+          {errors.stock && (
+            <p className="text-xs text-red-500">{errors.stock.message}</p>
+          )}
+        </div>
       </div>
 
       {/* Item rows */}

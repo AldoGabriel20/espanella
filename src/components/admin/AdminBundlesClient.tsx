@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, AlertCircle, PackageOpen } from "lucide-react";
+import Image from "next/image";
+import { Plus, Pencil, Trash2, AlertCircle, PackageOpen, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -24,6 +25,7 @@ import {
 import { PageHeader } from "@/components/ui/page-header";
 import { BundleForm } from "@/components/admin/BundleForm";
 import type { BundleFormValues } from "@/components/admin/BundleForm";
+import { BundleMediaManager } from "@/components/admin/BundleMediaManager";
 import {
   useBundles,
   useCreateBundle,
@@ -54,8 +56,11 @@ export function AdminBundlesClient() {
   // ─── Handlers ────────────────────────────────────────────────────────────
 
   async function handleCreate(values: BundleFormValues) {
-    await createBundle.mutateAsync({
+    const created = await createBundle.mutateAsync({
       name: values.name,
+      description: values.description,
+      price: values.price,
+      stock: values.stock,
       items: values.items.map((line) => ({
         itemId: line.itemId,
         quantity: line.quantity,
@@ -63,6 +68,8 @@ export function AdminBundlesClient() {
     });
     setCreateOpen(false);
     createBundle.reset();
+    updateBundle.reset();
+    setEditBundle(created);
   }
 
   async function handleUpdate(values: BundleFormValues) {
@@ -71,6 +78,9 @@ export function AdminBundlesClient() {
       id: editBundle.id,
       data: {
         name: values.name,
+        description: values.description,
+        price: values.price,
+        stock: values.stock,
         items: values.items.map((line) => ({
           itemId: line.itemId,
           quantity: line.quantity,
@@ -117,8 +127,11 @@ export function AdminBundlesClient() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
+              <TableHead className="w-12" />
               <TableHead>Bundle Name</TableHead>
-              <TableHead>Items</TableHead>
+              <TableHead className="hidden sm:table-cell">Price</TableHead>
+              <TableHead className="hidden sm:table-cell">Stock</TableHead>
+              <TableHead className="hidden md:table-cell">Items</TableHead>
               <TableHead className="hidden md:table-cell">Created</TableHead>
               <TableHead className="w-20" />
             </TableRow>
@@ -127,15 +140,18 @@ export function AdminBundlesClient() {
             {catalogLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
+                  <TableCell><Skeleton className="h-10 w-10 rounded" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                  <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
+                  <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-12" /></TableCell>
+                  <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-16" /></TableCell>
                   <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
                   <TableCell />
                 </TableRow>
               ))
             ) : bundles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-40 text-center">
+                <TableCell colSpan={7} className="h-40 text-center">
                   <div className="flex flex-col items-center gap-3">
                     <PackageOpen className="h-8 w-8 text-muted-foreground/30" />
                     <p className="text-sm text-muted-foreground">No bundles yet</p>
@@ -159,12 +175,36 @@ export function AdminBundlesClient() {
 
                 return (
                   <TableRow key={bundle.id} className="group">
+                    <TableCell className="w-12">
+                      {bundle.primaryImageUrl ? (
+                        <div className="relative h-10 w-10 rounded overflow-hidden bg-muted">
+                          <Image
+                            src={bundle.primaryImageUrl}
+                            alt={bundle.name}
+                            fill
+                            className="object-cover"
+                            sizes="40px"
+                            unoptimized
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-10 w-10 rounded bg-muted flex items-center justify-center">
+                          <ImageIcon className="h-4 w-4 text-muted-foreground/40" />
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">{bundle.name}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
+                      {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(bundle.price)}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
+                      {bundle.stock}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <span className="text-sm text-muted-foreground">
                         {bundle.items.length} item{bundle.items.length !== 1 ? "s" : ""}
                         {preview && (
-                          <span className="hidden sm:inline">
+                          <span className="hidden lg:inline">
                             {" "}— {preview}{overflow}
                           </span>
                         )}
@@ -215,7 +255,7 @@ export function AdminBundlesClient() {
           <DialogHeader>
             <DialogTitle>Add Bundle</DialogTitle>
             <DialogDescription>
-              Define a new hamper bundle with its item composition.
+              Define a new hamper bundle. You can add photos and videos after saving.
             </DialogDescription>
           </DialogHeader>
           <BundleForm
@@ -236,30 +276,38 @@ export function AdminBundlesClient() {
           if (!open) { updateBundle.reset(); setEditBundle(null); }
         }}
       >
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Bundle</DialogTitle>
             <DialogDescription>
-              Update the composition of{" "}
-              <span className="font-medium">{editBundle?.name}</span>.
+              Update <span className="font-medium">{editBundle?.name}</span>.
             </DialogDescription>
           </DialogHeader>
           {editBundle && (
-            <BundleForm
-              defaultValues={{
-                name: editBundle.name,
-                items: editBundle.items.map((bi) => ({
-                  itemId: bi.itemId,
-                  quantity: bi.quantity,
-                })),
-              }}
-              availableItems={items}
-              onSubmit={handleUpdate}
-              isPending={updateBundle.isPending}
-              error={updateBundle.error as Error | null}
-              submitLabel="Save Changes"
-              onCancel={() => { updateBundle.reset(); setEditBundle(null); }}
-            />
+            <div className="space-y-6">
+              <BundleForm
+                defaultValues={{
+                  name: editBundle.name,
+                  description: editBundle.description ?? "",
+                  price: editBundle.price,
+                  stock: editBundle.stock,
+                  items: editBundle.items.map((bi) => ({
+                    itemId: bi.itemId,
+                    quantity: bi.quantity,
+                  })),
+                }}
+                availableItems={items}
+                onSubmit={handleUpdate}
+                isPending={updateBundle.isPending}
+                error={updateBundle.error as Error | null}
+                submitLabel="Save Changes"
+                onCancel={() => { updateBundle.reset(); setEditBundle(null); }}
+              />
+              <div className="border-t pt-4 space-y-3">
+                <p className="text-sm font-medium">Photos &amp; Videos</p>
+                <BundleMediaManager bundleId={editBundle.id} />
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>

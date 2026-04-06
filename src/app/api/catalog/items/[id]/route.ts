@@ -17,6 +17,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const data = await request.json();
     const item = await updateItem(params.id, {
       name: data.name,
+      description: data.description,
       stock: data.stock,
       unit: data.unit,
       price: data.price ?? 0,

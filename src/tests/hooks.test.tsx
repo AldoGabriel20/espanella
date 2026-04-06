@@ -47,6 +47,7 @@ const NOW = "2026-01-01T00:00:00+07:00";
 const itemFixture: Item = {
   id: "item-1",
   name: "Premium Dates",
+  description: null,
   stock: 100,
   reservedStock: 20,
   availableStock: 80,

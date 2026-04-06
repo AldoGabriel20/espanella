@@ -19,6 +19,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const data = await request.json();
     const bundle = await updateBundle(params.id, {
       name: data.name,
+      description: data.description,
+      price: typeof data.price === "number" ? data.price : undefined,
+      stock: typeof data.stock === "number" ? data.stock : undefined,
       items: (data.items as BundleLineInput[]).map((line) => ({
         item_id: line.itemId,
         quantity: line.quantity,

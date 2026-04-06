@@ -53,6 +53,7 @@ export async function getItemById(id: string): Promise<Item> {
 
 export type CreateItemBody = {
   name: string;
+  description?: string;
   stock: number;
   unit: string;
   price: number;

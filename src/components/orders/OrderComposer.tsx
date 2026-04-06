@@ -54,9 +54,10 @@ interface LineRowProps {
   onRemove: () => void;
   items: Item[];
   bundles: Bundle[];
+  isAdmin: boolean;
 }
 
-function LineRow({ index, form, onRemove, items, bundles }: LineRowProps) {
+function LineRow({ index, form, onRemove, items, bundles, isAdmin }: LineRowProps) {
   const { register, control, setValue, watch, formState } = form;
   const type = watch(`lines.${index}.type`);
   const sourceId = watch(`lines.${index}.sourceId`);
@@ -75,11 +76,14 @@ function LineRow({ index, form, onRemove, items, bundles }: LineRowProps) {
       const item = items.find((i) => i.id === newId);
       if (item) {
         setValue(`lines.${index}.name`, item.name);
-        if (item.price > 0) setValue(`lines.${index}.unitPrice`, item.price);
+        setValue(`lines.${index}.unitPrice`, item.price > 0 ? item.price : 0);
       }
     } else {
       const bundle = bundles.find((b) => b.id === newId);
-      if (bundle) setValue(`lines.${index}.name`, bundle.name);
+      if (bundle) {
+        setValue(`lines.${index}.name`, bundle.name);
+        setValue(`lines.${index}.unitPrice`, bundle.price > 0 ? bundle.price : 0);
+      }
     }
   }
 
@@ -201,15 +205,21 @@ function LineRow({ index, form, onRemove, items, bundles }: LineRowProps) {
 
         <div className="space-y-1">
           <Label htmlFor={`price-${index}`}>Unit Price (IDR)</Label>
-          <Input
-            id={`price-${index}`}
-            type="number"
-            min="0"
-            step="1000"
-            placeholder="0"
-            {...register(`lines.${index}.unitPrice`, { valueAsNumber: true })}
-            className={cn(errors?.unitPrice && "border-red-400")}
-          />
+          {isAdmin ? (
+            <Input
+              id={`price-${index}`}
+              type="number"
+              min="0"
+              step="1000"
+              placeholder="0"
+              {...register(`lines.${index}.unitPrice`, { valueAsNumber: true })}
+              className={cn(errors?.unitPrice && "border-red-400")}
+            />
+          ) : (
+            <div className="flex h-10 items-center rounded-md border bg-muted/40 px-3 text-sm tabular-nums">
+              {formatIDR(unitPrice)}
+            </div>
+          )}
           {errors?.unitPrice && (
             <p className="text-xs text-red-500">{errors.unitPrice.message}</p>
           )}
@@ -228,7 +238,7 @@ function LineRow({ index, form, onRemove, items, bundles }: LineRowProps) {
 
 // ─── Order Composer ───────────────────────────────────────────────────────────
 
-export function OrderComposer() {
+export function OrderComposer({ isAdmin }: { isAdmin: boolean }) {
   const router = useRouter();
   const { items, isLoading: itemsLoading } = useItems({ limit: 200 });
   const { bundles, isLoading: bundlesLoading } = useBundles({ limit: 200 });
@@ -349,6 +359,7 @@ export function OrderComposer() {
               )}
             </div>
 
+            {isAdmin && (
             <div className="space-y-1.5">
               <Label htmlFor="deliveryAmount">Delivery Amount (IDR)</Label>
               <Input
@@ -366,6 +377,7 @@ export function OrderComposer() {
                 </p>
               )}
             </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -436,6 +448,7 @@ export function OrderComposer() {
                   onRemove={() => remove(index)}
                   items={items}
                   bundles={bundles}
+                  isAdmin={isAdmin}
                 />
               ))}
             </div>
@@ -469,6 +482,10 @@ export function OrderComposer() {
       )}
 
       {/* Submit */}
+      <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 space-y-1">
+        <p>📦 <span className="font-medium">Delivery fee</span> will be confirmed by our admin via WhatsApp after your order is placed.</p>
+        <p>🏷️ Any applicable <span className="font-medium">product discounts</span> will also be communicated via WhatsApp.</p>
+      </div>
       <div className="flex justify-end gap-3 pb-8">
         <Button
           type="button"

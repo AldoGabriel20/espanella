@@ -3,14 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, AlertCircle, Package, ChevronLeft, ChevronRight } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, AlertCircle, Package, ChevronLeft, ChevronRight, CheckCircle2, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StockBreakdown } from "@/components/catalog/StockIndicator";
 import { useItem } from "@/hooks/useItems";
-import { formatDateTime } from "@/lib/utils/date";
 import { cn } from "@/lib/utils";
 import type { ItemMedia } from "@/types";
 
@@ -19,22 +16,29 @@ interface ItemDetailClientProps {
   isAdmin: boolean;
 }
 
+function formatPrice(price: number) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price);
+}
+
 // ─── Media gallery ────────────────────────────────────────────────────────────
 
 function MediaGallery({ media }: { media: ItemMedia[] }) {
   const ready = media.filter((m) => m.status === "ready");
   const images = ready.filter((m) => m.mediaType === "image");
   const video = ready.find((m) => m.mediaType === "video");
-
   const [activeIdx, setActiveIdx] = useState(0);
 
   if (ready.length === 0) return null;
 
   return (
     <div className="space-y-2">
-      {/* Main image — responsive aspect ratio */}
       {images.length > 0 && (
-        <div className="relative aspect-[4/3] w-full rounded-xl overflow-hidden bg-muted">
+        <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-muted">
           <Image
             src={images[activeIdx]?.url ?? images[0].url}
             alt={images[activeIdx]?.altText ?? images[0].altText ?? "Product image"}
@@ -42,40 +46,38 @@ function MediaGallery({ media }: { media: ItemMedia[] }) {
             className="object-contain"
             unoptimized
           />
-          {/* Prev / Next arrows */}
           {images.length > 1 && (
             <>
               <button
                 onClick={() => setActiveIdx((i) => Math.max(0, i - 1))}
                 disabled={activeIdx === 0}
                 className={cn(
-                  "absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-background/75 p-1 shadow transition-opacity",
+                  "absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80 p-1.5 shadow transition-opacity",
                   activeIdx === 0 ? "opacity-30 cursor-default" : "hover:bg-background"
                 )}
                 aria-label="Previous image"
               >
-                <ChevronLeft className="h-3.5 w-3.5" />
+                <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setActiveIdx((i) => Math.min(images.length - 1, i + 1))}
                 disabled={activeIdx === images.length - 1}
                 className={cn(
-                  "absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-background/75 p-1 shadow transition-opacity",
+                  "absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80 p-1.5 shadow transition-opacity",
                   activeIdx === images.length - 1 ? "opacity-30 cursor-default" : "hover:bg-background"
                 )}
                 aria-label="Next image"
               >
-                <ChevronRight className="h-3.5 w-3.5" />
+                <ChevronRight className="h-4 w-4" />
               </button>
-              {/* Dot indicators */}
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
                 {images.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setActiveIdx(i)}
                     className={cn(
-                      "w-1.5 h-1.5 rounded-full transition-colors",
-                      i === activeIdx ? "bg-white" : "bg-white/50"
+                      "w-1.5 h-1.5 rounded-full transition-all",
+                      i === activeIdx ? "bg-white scale-125" : "bg-white/50"
                     )}
                     aria-label={`Go to image ${i + 1}`}
                   />
@@ -86,23 +88,22 @@ function MediaGallery({ media }: { media: ItemMedia[] }) {
         </div>
       )}
 
-      {/* Thumbnail strip */}
       {images.length > 1 && (
-        <div className="flex gap-1.5 overflow-x-auto pb-0.5">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {images.map((img, i) => (
             <button
               key={img.id}
               onClick={() => setActiveIdx(i)}
               className={cn(
-                "shrink-0 w-12 h-12 rounded-lg overflow-hidden border-2 transition-colors",
-                i === activeIdx ? "border-primary" : "border-transparent opacity-70 hover:opacity-100"
+                "shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all",
+                i === activeIdx ? "border-primary" : "border-transparent opacity-60 hover:opacity-90"
               )}
             >
               <Image
                 src={img.url}
                 alt={img.altText ?? `Image ${i + 1}`}
-                width={48}
-                height={48}
+                width={56}
+                height={56}
                 className="object-cover w-full h-full"
                 unoptimized
               />
@@ -111,13 +112,12 @@ function MediaGallery({ media }: { media: ItemMedia[] }) {
         </div>
       )}
 
-      {/* Video */}
       {video && (
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           {images.length > 0 && (
-            <p className="text-xs font-medium text-muted-foreground pt-1">Video</p>
+            <p className="text-xs font-medium text-muted-foreground">Video</p>
           )}
-          <div className="aspect-video w-full rounded-xl overflow-hidden bg-muted">
+          <div className="aspect-video w-full rounded-2xl overflow-hidden bg-muted">
             <video
               src={video.url}
               controls
@@ -137,20 +137,15 @@ function MediaGallery({ media }: { media: ItemMedia[] }) {
 function DetailSkeleton() {
   return (
     <div className="space-y-6">
-      <Skeleton className="h-8 w-48" />
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardContent className="pt-6 space-y-4">
-            <Skeleton className="h-5 w-24" />
-            <Skeleton className="h-24 w-full" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 space-y-4">
-            <Skeleton className="h-5 w-24" />
-            <Skeleton className="h-24 w-full" />
-          </CardContent>
-        </Card>
+      <Skeleton className="h-8 w-36" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Skeleton className="aspect-square w-full rounded-2xl" />
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-3/4" />
+          <Skeleton className="h-6 w-1/3" />
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-20 w-full" />
+        </div>
       </div>
     </div>
   );
@@ -180,8 +175,11 @@ export function ItemDetailClient({ id, isAdmin }: ItemDetailClientProps) {
     );
   }
 
+  const hasMedia = item.media && item.media.filter((m) => m.status === "ready").length > 0;
+  const inStock = item.availableStock > 0;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Back nav */}
       <Link href="/catalog/items">
         <Button variant="ghost" size="sm" className="gap-1 -ml-2">
@@ -190,105 +188,84 @@ export function ItemDetailClient({ id, isAdmin }: ItemDetailClientProps) {
         </Button>
       </Link>
 
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-3">
-          {item.primaryImageUrl ? (
-            <div className="rounded-xl overflow-hidden w-12 h-12 shrink-0 bg-muted">
-              <Image
-                src={item.primaryImageUrl}
-                alt={item.name}
-                width={48}
-                height={48}
-                className="object-cover w-full h-full"
-                unoptimized
-              />
-            </div>
+      {/* Mobile-only: name/unit/price/stock above the image */}
+      <div className="lg:hidden space-y-3">
+        <div>
+          <h1 className="font-display text-3xl font-semibold tracking-tight leading-tight">
+            {item.name}
+          </h1>
+          <Badge variant="outline" className="mt-2 text-xs">
+            {item.unit}
+          </Badge>
+        </div>
+        {item.price > 0 && (
+          <p className="text-2xl font-bold text-primary">{formatPrice(item.price)}</p>
+        )}
+        <div className="flex items-center gap-2">
+          {inStock ? (
+            <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
           ) : (
-            <div className="rounded-xl bg-forest/10 p-2.5 text-forest">
-              <Package className="h-6 w-6" />
+            <XCircle className="h-4 w-4 text-red-500 shrink-0" />
+          )}
+          <span className={cn("text-sm font-medium", inStock ? "text-green-700" : "text-red-600")}>
+            {inStock ? `${item.availableStock} ${item.unit} available` : "Out of stock"}
+          </span>
+        </div>
+      </div>
+
+      {/* Main grid: media | info */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+
+        {/* Left: media gallery or placeholder */}
+        <div>
+          {hasMedia ? (
+            <MediaGallery media={item.media} />
+          ) : (
+            <div className="aspect-square w-full rounded-2xl bg-muted flex flex-col items-center justify-center gap-3 text-muted-foreground">
+              <Package className="h-16 w-16 opacity-20" />
+              <p className="text-sm">No photos yet</p>
             </div>
           )}
-          <div>
-            <h1 className="font-display text-2xl font-semibold tracking-tight">{item.name}</h1>
-            <Badge variant="outline" className="mt-1 text-xs">
+        </div>
+
+        {/* Right: product info */}
+        <div className="space-y-5">
+          {/* Name + unit — desktop only (shown in mobile header above) */}
+          <div className="hidden lg:block">
+            <h1 className="font-display text-3xl font-semibold tracking-tight leading-tight">
+              {item.name}
+            </h1>
+            <Badge variant="outline" className="mt-2 text-xs">
               {item.unit}
             </Badge>
           </div>
-        </div>
-        {isAdmin && (
-          <div className="flex gap-2">
-            <Link href={`/catalog/items/${id}/stock-movements`}>
-              <Button variant="outline" size="sm">
-                Stock Movements →
-              </Button>
-            </Link>
-            <Link href={`/admin/items`}>
-              <Button variant="outline" size="sm">
-                Edit Item →
-              </Button>
-            </Link>
-          </div>
-        )}
-      </div>
 
-      {/* Body: media left + info right (lg), stacked on small screens */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-        {/* Media gallery — left column on lg */}
-        {item.media && item.media.length > 0 && (
-          <div className="lg:col-span-2">
-            <MediaGallery media={item.media} />
-          </div>
-        )}
-
-        {/* Info cards — right column on lg, full width when no media */}
-        <div
-          className={cn(
-            "space-y-4",
-            item.media && item.media.length > 0 ? "lg:col-span-3" : "lg:col-span-5"
+          {/* Price — desktop only */}
+          {item.price > 0 && (
+            <p className="hidden lg:block text-2xl font-bold text-primary">{formatPrice(item.price)}</p>
           )}
-        >
-          {/* Stock breakdown */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-base">Stock Levels</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <StockBreakdown
-                stock={item.stock}
-                reservedStock={item.reservedStock}
-                availableStock={item.availableStock}
-                unit={item.unit}
-              />
-            </CardContent>
-          </Card>
 
-          {/* Metadata */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-base">Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div>
-                  <dt className="text-xs text-muted-foreground">Item ID</dt>
-                  <dd className="mt-0.5 font-mono text-sm truncate">{item.id}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-muted-foreground">Unit</dt>
-                  <dd className="mt-0.5 text-sm font-medium">{item.unit}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-muted-foreground">Created</dt>
-                  <dd className="mt-0.5 text-sm">{formatDateTime(item.createdAt)}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-muted-foreground">Last Updated</dt>
-                  <dd className="mt-0.5 text-sm">{formatDateTime(item.updatedAt)}</dd>
-                </div>
-              </dl>
-            </CardContent>
-          </Card>
+          {/* Stock — desktop only */}
+          <div className="hidden lg:flex items-center gap-2">
+            {inStock ? (
+              <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+            ) : (
+              <XCircle className="h-4 w-4 text-red-500 shrink-0" />
+            )}
+            <span className={cn("text-sm font-medium", inStock ? "text-green-700" : "text-red-600")}>
+              {inStock ? `${item.availableStock} ${item.unit} available` : "Out of stock"}
+            </span>
+          </div>
+
+          {/* Description */}
+          {item.description && (
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Description</p>
+              <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                {item.description}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

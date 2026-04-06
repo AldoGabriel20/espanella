@@ -84,6 +84,7 @@ export type RawItemMedia = z.infer<typeof RawItemMediaSchema>;
 export const RawItemSchema = z.object({
   ID: z.string(),
   Name: z.string(),
+  Description: z.string().nullable().default(null),
   Stock: z.number().int().min(0),
   ReservedStock: z.number().int().min(0),
   Unit: z.string(),
@@ -110,11 +111,41 @@ export const RawBundleItemSchema = z.object({
 });
 export type RawBundleItem = z.infer<typeof RawBundleItemSchema>;
 
+export const RawBundleMediaSchema = z.object({
+  ID: z.string(),
+  BundleID: z.string(),
+  MediaType: z.enum(["image", "video"]),
+  StorageBucket: z.string(),
+  StoragePath: z.string(),
+  PublicURL: z.string(),
+  MIMEType: z.string(),
+  FileSizeBytes: z.number(),
+  Width: z.number().nullable().default(null),
+  Height: z.number().nullable().default(null),
+  DurationSeconds: z.number().nullable().default(null),
+  AltText: z.string().nullable().default(null),
+  SortOrder: z.number().int(),
+  IsPrimary: z.boolean(),
+  Status: z.enum(["pending", "ready", "failed", "deleted"]),
+  CreatedAt: isoDateString,
+  UpdatedAt: isoDateString,
+});
+export type RawBundleMedia = z.infer<typeof RawBundleMediaSchema>;
+
 export const RawBundleSchema = z.object({
   ID: z.string(),
   Name: z.string(),
+  Description: z.string().nullable().default(null),
+  Price: z.number().min(0).default(0),
+  Stock: z.number().int().min(0).default(0),
+  ReservedStock: z.number().int().min(0).default(0),
+  PrimaryImageURL: z.string().nullable().default(null),
+  HasVideo: z.boolean().default(false),
+  MediaCount: z.number().int().min(0).default(0),
+  Media: z.array(RawBundleMediaSchema).nullable().default([]),
   Items: z.array(RawBundleItemSchema).nullable().default([]),
   CreatedAt: isoDateString,
+  UpdatedAt: isoDateString,
 });
 export type RawBundle = z.infer<typeof RawBundleSchema>;
 

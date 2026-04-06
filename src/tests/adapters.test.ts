@@ -38,6 +38,7 @@ const rawUser = {
 const rawItem: RawItem = {
   ID: "item-1",
   Name: "Premium Dates",
+  Description: null,
   Stock: 100,
   ReservedStock: 30,
   Unit: "box",
@@ -67,8 +68,17 @@ const rawBundleItem = {
 const rawBundle: RawBundle = {
   ID: "bundle-1",
   Name: "Classic Hamper",
+  Description: null,
+  Price: 0,
+  Stock: 10,
+  ReservedStock: 0,
+  PrimaryImageURL: null,
+  HasVideo: false,
+  MediaCount: 0,
+  Media: [],
   Items: [rawBundleItem],
   CreatedAt: NOW,
+  UpdatedAt: NOW,
 };
 
 const rawBundleNullItems: RawBundle = {

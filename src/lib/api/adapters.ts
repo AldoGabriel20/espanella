@@ -17,6 +17,7 @@ import type {
   RawItem,
   RawItemMedia,
   RawBundleItem,
+  RawBundleMedia,
   RawBundle,
   RawOrderItem,
   RawOrder,
@@ -31,6 +32,7 @@ import type {
   Item,
   ItemMedia,
   BundleItem,
+  BundleMedia,
   Bundle,
   OrderItem,
   Order,
@@ -82,6 +84,7 @@ export function adaptItem(raw: RawItem): Item {
   return {
     id: raw.ID,
     name: raw.Name,
+    description: raw.Description ?? null,
     stock,
     reservedStock,
     availableStock: Math.max(0, stock - reservedStock),
@@ -111,12 +114,46 @@ export function adaptBundleItem(raw: RawBundleItem): BundleItem {
   };
 }
 
+export function adaptBundleMedia(raw: RawBundleMedia): BundleMedia {
+  return {
+    id: raw.ID,
+    bundleId: raw.BundleID,
+    mediaType: raw.MediaType,
+    storageBucket: raw.StorageBucket,
+    storagePath: raw.StoragePath,
+    url: raw.PublicURL,
+    mimeType: raw.MIMEType,
+    fileSizeBytes: raw.FileSizeBytes,
+    width: raw.Width,
+    height: raw.Height,
+    durationSeconds: raw.DurationSeconds,
+    altText: raw.AltText,
+    sortOrder: raw.SortOrder,
+    isPrimary: raw.IsPrimary,
+    status: raw.Status,
+    createdAt: raw.CreatedAt,
+    updatedAt: raw.UpdatedAt,
+  };
+}
+
 export function adaptBundle(raw: RawBundle): Bundle {
+  const stock = raw.Stock ?? 0;
+  const reservedStock = raw.ReservedStock ?? 0;
   return {
     id: raw.ID,
     name: raw.Name,
+    description: raw.Description ?? null,
+    price: raw.Price ?? 0,
+    stock,
+    reservedStock,
+    availableStock: Math.max(0, stock - reservedStock),
+    primaryImageUrl: raw.PrimaryImageURL ?? null,
+    hasVideo: raw.HasVideo ?? false,
+    mediaCount: raw.MediaCount ?? 0,
+    media: (raw.Media ?? []).map(adaptBundleMedia),
     items: (raw.Items ?? []).map(adaptBundleItem),
     createdAt: raw.CreatedAt,
+    updatedAt: raw.UpdatedAt,
   };
 }
 

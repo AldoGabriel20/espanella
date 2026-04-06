@@ -69,7 +69,7 @@ export function AdminItemsClient() {
 
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
-  async function handleCreate(values: { name: string; stock: number; unit: string; price: number }) {
+  async function handleCreate(values: { name: string; description?: string; stock: number; unit: string; price: number }) {
     const created = await createItem.mutateAsync(values);
     setCreateOpen(false);
     createItem.reset();
@@ -77,7 +77,7 @@ export function AdminItemsClient() {
     setEditItem(created);
   }
 
-  async function handleUpdate(values: { name: string; stock: number; unit: string; price: number }) {
+  async function handleUpdate(values: { name: string; description?: string; stock: number; unit: string; price: number }) {
     if (!editItem) return;
     await updateItem.mutateAsync({ id: editItem.id, data: values });
     setEditItem(null);
@@ -259,7 +259,7 @@ export function AdminItemsClient() {
           {editItem && (
             <div className="space-y-6">
               <ItemForm
-                defaultValues={{ name: editItem.name, stock: editItem.stock, unit: editItem.unit, price: editItem.price }}
+                defaultValues={{ name: editItem.name, description: editItem.description ?? "", stock: editItem.stock, unit: editItem.unit, price: editItem.price }}
                 onSubmit={handleUpdate}
                 isPending={updateItem.isPending}
                 error={updateItem.error as Error | null}
