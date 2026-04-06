@@ -32,9 +32,9 @@ function MediaGallery({ media }: { media: ItemMedia[] }) {
 
   return (
     <div className="space-y-2">
-      {/* Main image — fixed height, not full-screen */}
+      {/* Main image — responsive aspect ratio */}
       {images.length > 0 && (
-        <div className="relative h-64 rounded-xl overflow-hidden bg-muted">
+        <div className="relative aspect-[4/3] w-full rounded-xl overflow-hidden bg-muted">
           <Image
             src={images[activeIdx]?.url ?? images[0].url}
             alt={images[activeIdx]?.altText ?? images[0].altText ?? "Product image"}
@@ -111,13 +111,13 @@ function MediaGallery({ media }: { media: ItemMedia[] }) {
         </div>
       )}
 
-      {/* Video — compact height */}
+      {/* Video */}
       {video && (
         <div className="space-y-1">
           {images.length > 0 && (
             <p className="text-xs font-medium text-muted-foreground pt-1">Video</p>
           )}
-          <div className="h-44 rounded-xl overflow-hidden bg-muted">
+          <div className="aspect-video w-full rounded-xl overflow-hidden bg-muted">
             <video
               src={video.url}
               controls

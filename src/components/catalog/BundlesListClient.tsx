@@ -31,13 +31,6 @@ export function BundlesListClient() {
       <PageHeader
         title="Bundles"
         description="Browse pre-composed hamper bundles."
-        action={
-          <Link href="/admin/bundles">
-            <Button variant="outline" size="sm">
-              Admin →
-            </Button>
-          </Link>
-        }
       />
 
       {/* Search */}

@@ -77,14 +77,7 @@ export function ItemsListClient() {
     <div className="space-y-6">
       <PageHeader
         title="Items"
-        description="Browse and manage catalog items."
-        action={
-          <Link href="/admin/items">
-            <Button variant="outline" size="sm">
-              Admin →
-            </Button>
-          </Link>
-        }
+        description="Browse the product catalog."
       />
 
       {/* Toolbar */}

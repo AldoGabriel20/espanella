@@ -43,7 +43,7 @@ export function Topbar({
   breadcrumbs = [],
 }: TopbarProps) {
   return (
-    <header className="sticky top-0 z-30 flex items-center h-14 gap-3 px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+    <header className="sticky top-0 z-30 flex items-center h-14 gap-3 px-4 bg-background border-b border-border">
       <MobileNav role={role} />
 
       {/* Breadcrumbs */}
