@@ -65,7 +65,6 @@ function DetailSkeleton() {
 export function OrderDetailClient({ id }: OrderDetailClientProps) {
   const router = useRouter();
   const [cancelOpen, setCancelOpen] = useState(false);
-  const [invoiceURL, setInvoiceURL] = useState<string | null>(null);
   const [invoiceLoading, setInvoiceLoading] = useState(false);
 
   const { data: order, isLoading, isError, error } = useOrderById(id);
