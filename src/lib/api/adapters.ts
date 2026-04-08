@@ -177,11 +177,8 @@ export function adaptOrderItem(raw: RawOrderItem): OrderItem {
 }
 
 export function adaptOrder(raw: RawOrder): Order {
-  // Normalize invoice URL: empty string → null
-  const invoiceSignedUrl =
-    raw.InvoiceSignedURL && raw.InvoiceSignedURL.trim().length > 0
-      ? raw.InvoiceSignedURL
-      : null;
+  const hasInvoice =
+    raw.InvoiceSignedURL != null && raw.InvoiceSignedURL.trim().length > 0;
 
   return {
     id: raw.ID,
@@ -191,7 +188,10 @@ export function adaptOrder(raw: RawOrder): Order {
     deliveryAmount: raw.DeliveryAmount,
     status: raw.Status,
     totalPrice: raw.TotalPrice,
-    invoiceSignedUrl,
+    hasInvoice,
+    airwaybillNumber: raw.AirwaybillNumber ?? null,
+    courier: raw.Courier ?? null,
+    lockedByBatch: raw.LockedByBatch,
     createdAt: raw.CreatedAt,
     items: (raw.Items ?? []).map(adaptOrderItem),
   };

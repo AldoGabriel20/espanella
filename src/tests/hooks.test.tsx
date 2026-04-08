@@ -69,7 +69,10 @@ const orderFixture: Order = {
   deliveryAmount: 50000,
   status: "pending",
   totalPrice: 350000,
-  invoiceSignedUrl: null,
+  hasInvoice: false,
+  airwaybillNumber: null,
+  courier: null,
+  lockedByBatch: false,
   createdAt: NOW,
   items: [],
 };

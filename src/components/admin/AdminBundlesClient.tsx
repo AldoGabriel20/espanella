@@ -1,10 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, AlertCircle, PackageOpen, ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertCircle, PackageOpen, ImageIcon, Search, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PageHeader } from "@/components/ui/page-header";
 import { BundleForm } from "@/components/admin/BundleForm";
 import type { BundleFormValues } from "@/components/admin/BundleForm";
@@ -36,15 +45,38 @@ import { useItems } from "@/hooks/useItems";
 import { formatDate } from "@/lib/utils/date";
 import type { Bundle } from "@/types";
 
+type BundleSortKey = "name_asc" | "name_desc" | "price_asc" | "price_desc" | "stock_asc" | "stock_desc";
+
+function sortBundles(bundles: Bundle[], key: BundleSortKey): Bundle[] {
+  return [...bundles].sort((a, b) => {
+    switch (key) {
+      case "name_asc":   return a.name.localeCompare(b.name);
+      case "name_desc":  return b.name.localeCompare(a.name);
+      case "price_asc":  return a.price - b.price;
+      case "price_desc": return b.price - a.price;
+      case "stock_asc":  return a.stock - b.stock;
+      case "stock_desc": return b.stock - a.stock;
+      default: return 0;
+    }
+  });
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function AdminBundlesClient() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editBundle, setEditBundle] = useState<Bundle | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Bundle | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  // Search & sort
+  const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState<BundleSortKey>("name_asc");
+
+  // Bulk selection
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const { bundles, isLoading: bundlesLoading, isError, error } = useBundles({ limit: 200 });
-  // Load item catalog to populate the bundle form selectors
   const { items, isLoading: itemsLoading } = useItems({ limit: 200 });
 
   const createBundle = useCreateBundle();
@@ -52,6 +84,47 @@ export function AdminBundlesClient() {
   const deleteBundle = useDeleteBundle();
 
   const catalogLoading = bundlesLoading || itemsLoading;
+
+  // ─── Derived list ─────────────────────────────────────────────────────────
+
+  const filteredBundles = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const base = q
+      ? bundles.filter((b) => b.name.toLowerCase().includes(q))
+      : bundles;
+    return sortBundles(base, sortKey);
+  }, [bundles, search, sortKey]);
+
+  // ─── Selection helpers ───────────────────────────────────────────────────
+
+  const allFilteredSelected =
+    filteredBundles.length > 0 &&
+    filteredBundles.every((b) => selected.has(b.id));
+
+  function toggleAll() {
+    if (allFilteredSelected) {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        filteredBundles.forEach((b) => next.delete(b.id));
+        return next;
+      });
+    } else {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        filteredBundles.forEach((b) => next.add(b.id));
+        return next;
+      });
+    }
+  }
+
+  function toggleOne(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   // ─── Handlers ────────────────────────────────────────────────────────────
 
@@ -98,6 +171,23 @@ export function AdminBundlesClient() {
     deleteBundle.reset();
   }
 
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [bulkDeleteError, setBulkDeleteError] = useState<string | null>(null);
+
+  async function handleBulkDelete() {
+    setBulkDeleting(true);
+    setBulkDeleteError(null);
+    try {
+      await Promise.all(Array.from(selected).map((id) => deleteBundle.mutateAsync(id)));
+      setSelected(new Set());
+      setBulkDeleteOpen(false);
+    } catch (err) {
+      setBulkDeleteError(err instanceof Error ? err.message : "Failed to delete some bundles");
+    } finally {
+      setBulkDeleting(false);
+    }
+  }
+
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
@@ -122,11 +212,58 @@ export function AdminBundlesClient() {
         </div>
       )}
 
+      {/* Toolbar: search + sort + bulk actions */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input
+            placeholder="Search by name…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-8"
+          />
+        </div>
+        <Select value={sortKey} onValueChange={(v) => setSortKey(v as BundleSortKey)}>
+          <SelectTrigger className="w-44 gap-1">
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="name_asc">Name A → Z</SelectItem>
+            <SelectItem value="name_desc">Name Z → A</SelectItem>
+            <SelectItem value="price_asc">Price ↑</SelectItem>
+            <SelectItem value="price_desc">Price ↓</SelectItem>
+            <SelectItem value="stock_asc">Stock ↑</SelectItem>
+            <SelectItem value="stock_desc">Stock ↓</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {selected.size > 0 && (
+          <Button
+            variant="destructive"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => { setBulkDeleteError(null); setBulkDeleteOpen(true); }}
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete {selected.size} bundle{selected.size !== 1 ? "s" : ""}
+          </Button>
+        )}
+      </div>
+
       {/* Table */}
       <div className="rounded-lg border bg-card overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
+              <TableHead className="w-10">
+                <Checkbox
+                  checked={allFilteredSelected}
+                  onCheckedChange={toggleAll}
+                  aria-label="Select all"
+                  disabled={filteredBundles.length === 0}
+                />
+              </TableHead>
               <TableHead className="w-12" />
               <TableHead>Bundle Name</TableHead>
               <TableHead className="hidden sm:table-cell">Price</TableHead>
@@ -140,6 +277,7 @@ export function AdminBundlesClient() {
             {catalogLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
+                  <TableCell><div className="w-4 h-4 rounded bg-muted animate-pulse" /></TableCell>
                   <TableCell><Skeleton className="h-10 w-10 rounded" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-40" /></TableCell>
                   <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
@@ -149,21 +287,24 @@ export function AdminBundlesClient() {
                   <TableCell />
                 </TableRow>
               ))
-            ) : bundles.length === 0 ? (
+            ) : filteredBundles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-40 text-center">
+                <TableCell colSpan={8} className="h-40 text-center">
                   <div className="flex flex-col items-center gap-3">
                     <PackageOpen className="h-8 w-8 text-muted-foreground/30" />
-                    <p className="text-sm text-muted-foreground">No bundles yet</p>
-                    <Button size="sm" variant="outline" onClick={() => setCreateOpen(true)}>
-                      Create your first bundle
-                    </Button>
+                    <p className="text-sm text-muted-foreground">
+                      {search ? "No bundles match your search" : "No bundles yet"}
+                    </p>
+                    {!search && (
+                      <Button size="sm" variant="outline" onClick={() => setCreateOpen(true)}>
+                        Create your first bundle
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
             ) : (
-              bundles.map((bundle) => {
-                // Resolve item names for the composition preview
+              filteredBundles.map((bundle) => {
                 const preview = bundle.items
                   .slice(0, 3)
                   .map((bi) => {
@@ -175,6 +316,14 @@ export function AdminBundlesClient() {
 
                 return (
                   <TableRow key={bundle.id} className="group">
+                    {/* Checkbox */}
+                    <TableCell>
+                      <Checkbox
+                        checked={selected.has(bundle.id)}
+                        onCheckedChange={() => toggleOne(bundle.id)}
+                        aria-label={`Select ${bundle.name}`}
+                      />
+                    </TableCell>
                     <TableCell className="w-12">
                       {bundle.primaryImageUrl ? (
                         <div className="relative h-10 w-10 rounded overflow-hidden bg-muted">
@@ -349,6 +498,45 @@ export function AdminBundlesClient() {
               disabled={deleteBundle.isPending}
             >
               {deleteBundle.isPending ? "Deleting…" : "Delete Bundle"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Bulk Delete Confirmation ──────────────────────────────────────── */}
+      <Dialog
+        open={bulkDeleteOpen}
+        onOpenChange={(open) => {
+          if (!open) { setBulkDeleteError(null); setBulkDeleteOpen(false); }
+        }}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete {selected.size} bundle{selected.size !== 1 ? "s" : ""}?</DialogTitle>
+            <DialogDescription>
+              This will permanently delete the selected {selected.size} bundle{selected.size !== 1 ? "s" : ""}. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          {bulkDeleteError && (
+            <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              {bulkDeleteError}
+            </div>
+          )}
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline" disabled={bulkDeleting}>
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              onClick={handleBulkDelete}
+              disabled={bulkDeleting}
+            >
+              {bulkDeleting ? "Deleting…" : `Delete ${selected.size} Bundle${selected.size !== 1 ? "s" : ""}`}
             </Button>
           </DialogFooter>
         </DialogContent>

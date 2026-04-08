@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   AlertCircle,
-  Trash2,
+  XCircle,
   Package,
   Boxes,
   FileText,
@@ -14,6 +14,7 @@ import {
   Phone,
   CalendarDays,
   Truck,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,9 +38,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { OrderStatusBadge } from "@/components/orders/OrderStatusBadge";
-import { useOrderById, useDeleteOrder } from "@/hooks/useOrders";
+import { useOrderById, useCancelOrder } from "@/hooks/useOrders";
 import { formatDate, formatDateTime } from "@/lib/utils/date";
 import { formatIDR } from "@/lib/utils/currency";
+
+const CEKRESI_BASE = "https://cekresi.com/?noresi=";
 
 interface OrderDetailClientProps {
   id: string;
@@ -61,18 +64,39 @@ function DetailSkeleton() {
 
 export function OrderDetailClient({ id }: OrderDetailClientProps) {
   const router = useRouter();
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [invoiceURL, setInvoiceURL] = useState<string | null>(null);
+  const [invoiceLoading, setInvoiceLoading] = useState(false);
 
   const { data: order, isLoading, isError, error } = useOrderById(id);
-  const deleteOrder = useDeleteOrder();
+  const cancelOrder = useCancelOrder();
 
-  async function handleDelete() {
+  const canCancel =
+    (order?.status === "pending" || order?.status === "confirmed") &&
+    !order?.lockedByBatch;
+
+  async function handleCancel() {
     try {
-      await deleteOrder.mutateAsync(id);
-      setDeleteOpen(false);
-      router.push("/orders");
+      await cancelOrder.mutateAsync(id);
+      setCancelOpen(false);
+      router.refresh();
     } catch {
-      // error is surfaced via deleteOrder.error
+      // error shown via cancelOrder.error
+    }
+  }
+
+  async function handleViewInvoice() {
+    setInvoiceLoading(true);
+    try {
+      const res = await fetch(`/api/orders/${id}/invoice`);
+      if (res.ok) {
+        const data = await res.json();
+        // BFF returns adapted Invoice shape { orderId, invoiceUrl }
+        const url = data.invoiceUrl ?? data.invoice_url;
+        if (url) window.open(url, "_blank", "noopener,noreferrer");
+      }
+    } finally {
+      setInvoiceLoading(false);
     }
   }
 
@@ -120,15 +144,17 @@ export function OrderDetailClient({ id }: OrderDetailClientProps) {
             Created {formatDateTime(order.createdAt)}
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-200"
-          onClick={() => setDeleteOpen(true)}
-        >
-          <Trash2 className="h-4 w-4" />
-          Delete
-        </Button>
+        {canCancel && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-200"
+            onClick={() => setCancelOpen(true)}
+          >
+            <XCircle className="h-4 w-4" />
+            Cancel Order
+          </Button>
+        )}
       </div>
 
       {/* Info cards */}
@@ -162,26 +188,45 @@ export function OrderDetailClient({ id }: OrderDetailClientProps) {
               <Truck className="h-4 w-4 text-muted-foreground shrink-0" />
               <span>Delivery: {formatIDR(order.deliveryAmount)}</span>
             </div>
+            {/* Airwaybill tracking */}
+            {order.airwaybillNumber && (
+              <div className="flex items-center gap-2 text-sm">
+                <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0" />
+                <span className="text-muted-foreground">
+                  {order.courier ? `${order.courier} — ` : ""}
+                </span>
+                <a
+                  href={`${CEKRESI_BASE}${encodeURIComponent(order.airwaybillNumber)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary hover:underline"
+                >
+                  {order.airwaybillNumber} ↗
+                </a>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Invoice note (admin functionality available separately) */}
-      {order.invoiceSignedUrl && (
+      {/* Invoice */}
+      {order.hasInvoice && (
         <Card className="border-emerald-200 bg-emerald-50">
           <CardContent className="pt-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-sm text-emerald-800">
               <FileText className="h-4 w-4 shrink-0" />
               Invoice is available for this order
             </div>
-            <a
-              href={order.invoiceSignedUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-medium text-emerald-700 hover:underline shrink-0"
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 border-emerald-300 text-emerald-800 hover:bg-emerald-100 shrink-0"
+              onClick={handleViewInvoice}
+              disabled={invoiceLoading}
             >
-              Open Invoice →
-            </a>
+              {invoiceLoading ? "Loading…" : "View Invoice"}
+              <ExternalLink className="h-3.5 w-3.5" />
+            </Button>
           </CardContent>
         </Card>
       )}
@@ -256,39 +301,39 @@ export function OrderDetailClient({ id }: OrderDetailClientProps) {
         </CardContent>
       </Card>
 
-      {/* Delete confirmation dialog */}
-      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+      {/* Cancel confirmation dialog */}
+      <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete this order?</DialogTitle>
+            <DialogTitle>Cancel this order?</DialogTitle>
             <DialogDescription>
-              This will permanently delete the order for{" "}
-              <span className="font-medium">{order.customerName}</span>. This action cannot be
-              undone.
+              This will cancel the order for{" "}
+              <span className="font-medium">{order.customerName}</span> and restore any
+              reserved stock. This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
 
-          {deleteOrder.isError && (
+          {cancelOrder.isError && (
             <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
               <AlertCircle className="h-4 w-4 shrink-0" />
-              {deleteOrder.error instanceof Error
-                ? deleteOrder.error.message
-                : "Failed to delete order"}
+              {cancelOrder.error instanceof Error
+                ? cancelOrder.error.message
+                : "Failed to cancel order"}
             </div>
           )}
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline" disabled={deleteOrder.isPending}>
-                Cancel
+              <Button variant="outline" disabled={cancelOrder.isPending}>
+                Keep Order
               </Button>
             </DialogClose>
             <Button
               variant="destructive"
-              onClick={handleDelete}
-              disabled={deleteOrder.isPending}
+              onClick={handleCancel}
+              disabled={cancelOrder.isPending}
             >
-              {deleteOrder.isPending ? "Deleting…" : "Delete Order"}
+              {cancelOrder.isPending ? "Cancelling…" : "Cancel Order"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -296,3 +341,4 @@ export function OrderDetailClient({ id }: OrderDetailClientProps) {
     </div>
   );
 }
+

@@ -107,6 +107,9 @@ const rawOrder: RawOrder = {
   Status: "pending",
   TotalPrice: 350000,
   InvoiceSignedURL: "https://storage.example.com/invoice-1.pdf",
+  AirwaybillNumber: null,
+  Courier: null,
+  LockedByBatch: false,
   CreatedAt: NOW,
   Items: [rawOrderItem],
 };
@@ -226,21 +229,19 @@ describe("adaptOrder", () => {
     expect(order.deliveryAmount).toBe(50000);
   });
 
-  it("preserves non-empty invoice URL", () => {
+  it("marks hasInvoice=true for non-empty invoice URL", () => {
     const order = adaptOrder(rawOrder);
-    expect(order.invoiceSignedUrl).toBe(
-      "https://storage.example.com/invoice-1.pdf"
-    );
+    expect(order.hasInvoice).toBe(true);
   });
 
-  it("normalizes empty string invoice URL to null", () => {
+  it("marks hasInvoice=false for empty string invoice URL", () => {
     const order = adaptOrder(rawOrderEmptyInvoice);
-    expect(order.invoiceSignedUrl).toBeNull();
+    expect(order.hasInvoice).toBe(false);
   });
 
-  it("normalizes null invoice URL to null", () => {
+  it("marks hasInvoice=false for null invoice URL", () => {
     const order = adaptOrder(rawOrderNullInvoice);
-    expect(order.invoiceSignedUrl).toBeNull();
+    expect(order.hasInvoice).toBe(false);
   });
 
   it("handles null Items array gracefully", () => {

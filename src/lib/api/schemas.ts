@@ -175,6 +175,9 @@ export const RawOrderSchema = z.object({
   Status: z.enum(orderStatusValues),
   TotalPrice: z.number().min(0),
   InvoiceSignedURL: z.string().nullable().default(null),
+  AirwaybillNumber: z.string().nullable().default(null),
+  Courier: z.string().nullable().default(null),
+  LockedByBatch: z.boolean().default(false),
   CreatedAt: isoDateString,
   Items: z.array(RawOrderItemSchema).nullable().default([]),
 });

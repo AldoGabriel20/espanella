@@ -8,8 +8,18 @@ export async function GET(request: Request) {
     const limit = searchParams.get("limit") ? Number(searchParams.get("limit")) : undefined;
     const offset = searchParams.get("offset") ? Number(searchParams.get("offset")) : undefined;
     const status = searchParams.get("status") as import("@/types").OrderStatus | null;
+    const search = searchParams.get("search") ?? undefined;
+    const delivery_date_from = searchParams.get("delivery_date_from") ?? undefined;
+    const delivery_date_to = searchParams.get("delivery_date_to") ?? undefined;
 
-    const orders = await getOrders({ limit, offset, ...(status ? { status } : {}) });
+    const orders = await getOrders({
+      limit,
+      offset,
+      ...(status ? { status } : {}),
+      search,
+      delivery_date_from,
+      delivery_date_to,
+    });
     return NextResponse.json(orders);
   } catch (err) {
     const { status, message } = normalizeError(err);

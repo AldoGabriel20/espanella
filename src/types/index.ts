@@ -131,7 +131,12 @@ export type Order = {
   deliveryAmount: number;
   status: OrderStatus;
   totalPrice: number;
-  invoiceSignedUrl: string | null;
+  /** True when an invoice has been generated (actual signed URL is fetched on demand). */
+  hasInvoice: boolean;
+  airwaybillNumber: string | null;
+  courier: string | null;
+  /** True when this order belongs to an in-progress fulfillment batch; cancel is blocked. */
+  lockedByBatch: boolean;
   createdAt: string;
   items: OrderItem[];
 };

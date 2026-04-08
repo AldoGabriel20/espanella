@@ -287,14 +287,14 @@ function RecommendationsTab() {
 
   const [from, setFrom] = useState(today);
   const [to, setTo] = useState(nextMonth);
-  const [includePending, setIncludePending] = useState(true);
   const [maxBatchSize, setMaxBatchSize] = useState<number>(10);
   const [enabled, setEnabled] = useState(false);
 
+  // Only confirmed orders are eligible for fulfillment batches.
   const params: RecommendationQueryParams = {
     from,
     to,
-    includePending,
+    includePending: false,
     maxBatchSize,
   };
 
@@ -347,16 +347,8 @@ function RecommendationsTab() {
                 className="w-full rounded-md border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
-            <div className="flex items-end gap-2">
-              <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={includePending}
-                  onChange={(e) => { setIncludePending(e.target.checked); setEnabled(false); }}
-                  className="rounded"
-                />
-                Include pending
-              </label>
+            <div className="flex items-end gap-2 text-xs text-muted-foreground">
+              Only <strong>confirmed</strong> orders are recommended for batching.
             </div>
           </div>
           <div className="mt-4">
@@ -748,15 +740,14 @@ function BatchesTab() {
 
 // ─── Custom batch tab ──────────────────────────────────────────────────────────
 
-const CUSTOM_ORDER_STATUSES: { value: OrderStatus | "all"; label: string }[] = [
+// Fulfillment batches work only with confirmed orders (per smart-fulfillment policy).
+const CUSTOM_ORDER_STATUSES: { value: OrderStatus; label: string }[] = [
   { value: "confirmed", label: "Confirmed" },
-  { value: "pending", label: "Pending" },
-  { value: "all", label: "All statuses" },
 ];
 
 function CustomBatchTab() {
   const [page, setPage] = useState(0);
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("confirmed");
+  const [statusFilter, setStatusFilter] = useState<OrderStatus>("confirmed");
   // Map of orderId → Order for all checked rows (persists across pages)
   const [selected, setSelected] = useState<Map<string, Order>>(new Map());
   const [batchName, setBatchName] = useState("");
@@ -766,7 +757,7 @@ function CustomBatchTab() {
   const { orders, total, isLoading, isError, error } = useOrders({
     limit: PAGE_SIZE,
     offset: page * PAGE_SIZE,
-    status: statusFilter === "all" ? undefined : statusFilter,
+    status: statusFilter,
   });
 
   const hasNext = (page + 1) * PAGE_SIZE < total;
