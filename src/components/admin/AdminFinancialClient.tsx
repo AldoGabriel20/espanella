@@ -59,7 +59,7 @@ import {
   useFinancialSummary,
 } from "@/hooks/useExpenses";
 import { expenseMarketplaceValues, expensePaymentTypeValues } from "@/lib/api/schemas";
-import type { Expense, ExpenseMarketplace, ExpensePaymentType } from "@/types";
+import type { Expense } from "@/types";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

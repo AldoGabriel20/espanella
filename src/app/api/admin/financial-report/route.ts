@@ -57,7 +57,7 @@ export async function GET(request: Request) {
       );
     }
 
-    let token = getAccessToken();
+    const token = getAccessToken();
     if (!token) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
