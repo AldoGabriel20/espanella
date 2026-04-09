@@ -110,6 +110,9 @@ const rawOrder: RawOrder = {
   AirwaybillNumber: null,
   Courier: null,
   LockedByBatch: false,
+  Address: null,
+  CardRequest: false,
+  Notes: null,
   CreatedAt: NOW,
   Items: [rawOrderItem],
 };

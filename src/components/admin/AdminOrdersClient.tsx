@@ -112,7 +112,7 @@ function StatusSelector({ order }: { order: Order }) {
                     : STATUS_CONFIG[s]?.className?.includes("blue") ? "bg-blue-400"
                     : STATUS_CONFIG[s]?.className?.includes("indigo") ? "bg-indigo-400"
                     : STATUS_CONFIG[s]?.className?.includes("purple") ? "bg-purple-400"
-                    : STATUS_CONFIG[s]?.className?.includes("emerald") ? "bg-emerald-400"
+                    : STATUS_CONFIG[s]?.className?.includes("[#6A4636]") ? "bg-[#6A4636]/60"
                     : "bg-red-400"
                   )} />
                   {STATUS_CONFIG[s]?.label ?? s}
@@ -451,7 +451,7 @@ function InvoiceStatusBadge({ order, onManage }: { order: Order; onManage: () =>
       className={cn(
         "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
         order.hasInvoice
-          ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+          ? "bg-[#6A4636]/10 text-[#6A4636] hover:bg-[#6A4636]/20"
           : "bg-muted text-muted-foreground hover:bg-muted/70"
       )}
     >

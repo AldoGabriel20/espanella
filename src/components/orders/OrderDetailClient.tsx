@@ -15,6 +15,9 @@ import {
   CalendarDays,
   Truck,
   ExternalLink,
+  MapPin,
+  Gift,
+  StickyNote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -65,7 +68,7 @@ function DetailSkeleton() {
 export function OrderDetailClient({ id }: OrderDetailClientProps) {
   const router = useRouter();
   const [cancelOpen, setCancelOpen] = useState(false);
-  const [invoiceLoading, setInvoiceLoading] = useState(false);
+  const [invoiceLoading] = useState(false); // kept for button disabled compatibility
 
   const { data: order, isLoading, isError, error } = useOrderById(id);
   const cancelOrder = useCancelOrder();
@@ -84,19 +87,9 @@ export function OrderDetailClient({ id }: OrderDetailClientProps) {
     }
   }
 
-  async function handleViewInvoice() {
-    setInvoiceLoading(true);
-    try {
-      const res = await fetch(`/api/orders/${id}/invoice`);
-      if (res.ok) {
-        const data = await res.json();
-        // BFF returns adapted Invoice shape { orderId, invoiceUrl }
-        const url = data.invoiceUrl ?? data.invoice_url;
-        if (url) window.open(url, "_blank", "noopener,noreferrer");
-      }
-    } finally {
-      setInvoiceLoading(false);
-    }
+  function handleViewInvoice() {
+    // Open via proxy route — Supabase URL is never exposed to the browser.
+    window.open(`/api/orders/${id}/invoice/view`, "_blank", "noopener,noreferrer");
   }
 
   if (isLoading) return <DetailSkeleton />;
@@ -187,6 +180,18 @@ export function OrderDetailClient({ id }: OrderDetailClientProps) {
               <Truck className="h-4 w-4 text-muted-foreground shrink-0" />
               <span>Delivery: {formatIDR(order.deliveryAmount)}</span>
             </div>
+            {order.address && (
+              <div className="flex items-start gap-2 text-sm">
+                <MapPin className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                <span className="whitespace-pre-wrap">{order.address}</span>
+              </div>
+            )}
+            {order.cardRequest && (
+              <div className="flex items-center gap-2 text-sm">
+                <Gift className="h-4 w-4 text-muted-foreground shrink-0" />
+                <span>Greeting card requested</span>
+              </div>
+            )}
             {/* Airwaybill tracking */}
             {order.airwaybillNumber && (
               <div className="flex items-center gap-2 text-sm">
@@ -208,6 +213,21 @@ export function OrderDetailClient({ id }: OrderDetailClientProps) {
         </Card>
       </div>
 
+      {/* Notes */}
+      {order.notes && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <StickyNote className="h-4 w-4" />
+              Notes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm whitespace-pre-wrap text-muted-foreground">{order.notes}</p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Invoice */}
       {order.hasInvoice && (
         <Card className="border-emerald-200 bg-emerald-50">
@@ -219,11 +239,11 @@ export function OrderDetailClient({ id }: OrderDetailClientProps) {
             <Button
               size="sm"
               variant="outline"
-              className="gap-1.5 border-emerald-300 text-emerald-800 hover:bg-emerald-100 shrink-0"
+              className="gap-1.5 border-[#6A4636]/30 text-[#6A4636] hover:bg-[#6A4636]/5 shrink-0"
               onClick={handleViewInvoice}
               disabled={invoiceLoading}
             >
-              {invoiceLoading ? "Loading…" : "View Invoice"}
+              View Invoice
               <ExternalLink className="h-3.5 w-3.5" />
             </Button>
           </CardContent>

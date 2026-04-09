@@ -14,6 +14,8 @@ import {
   ChevronDown,
   Leaf,
   Truck,
+  Wallet,
+  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -47,6 +49,11 @@ const userNavItems: NavItem[] = [
     href: "/orders",
     icon: ShoppingBag,
   },
+  {
+    title: "About Us",
+    href: "/about",
+    icon: Building2,
+  },
 ];
 
 const adminNavItems: NavItem[] = [
@@ -61,6 +68,8 @@ const adminNavItems: NavItem[] = [
       { title: "Orders", href: "/admin/orders", icon: ShoppingBag },
       { title: "Fulfillment", href: "/admin/fulfillment", icon: Truck },
       { title: "Stock Audit", href: "/admin/stock", icon: BarChart3 },
+      { title: "Financial", href: "/admin/financial", icon: Wallet },
+      { title: "Company Profile", href: "/admin/company", icon: Building2 },
     ],
   },
 ];

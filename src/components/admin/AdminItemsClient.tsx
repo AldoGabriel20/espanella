@@ -1,10 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, AlertCircle, Package, ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertCircle, Package, ImageIcon, Search, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PageHeader } from "@/components/ui/page-header";
 import { ItemForm } from "@/components/admin/ItemForm";
 import { MediaManager } from "@/components/admin/MediaManager";
@@ -29,6 +38,22 @@ import { useItems, useCreateItem, useUpdateItem, useDeleteItem } from "@/hooks/u
 import { formatDate } from "@/lib/utils/date";
 import { cn } from "@/lib/utils";
 import type { Item } from "@/types";
+
+type ItemSortKey = "name_asc" | "name_desc" | "price_asc" | "price_desc" | "stock_asc" | "stock_desc";
+
+function sortItems(items: Item[], key: ItemSortKey): Item[] {
+  return [...items].sort((a, b) => {
+    switch (key) {
+      case "name_asc":   return a.name.localeCompare(b.name);
+      case "name_desc":  return b.name.localeCompare(a.name);
+      case "price_asc":  return a.price - b.price;
+      case "price_desc": return b.price - a.price;
+      case "stock_asc":  return a.availableStock - b.availableStock;
+      case "stock_desc": return b.availableStock - a.availableStock;
+      default: return 0;
+    }
+  });
+}
 
 // ─── Stock badge helper ───────────────────────────────────────────────────────
 
@@ -61,11 +86,63 @@ export function AdminItemsClient() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editItem, setEditItem] = useState<Item | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Item | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  // Search & sort
+  const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState<ItemSortKey>("name_asc");
+
+  // Bulk selection
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const { items, isLoading, isError, error } = useItems({ limit: 200 });
   const createItem = useCreateItem();
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
+
+  // ─── Derived list ─────────────────────────────────────────────────────────
+
+  const filteredItems = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const base = q
+      ? items.filter((i) => i.name.toLowerCase().includes(q))
+      : items;
+    return sortItems(base, sortKey);
+  }, [items, search, sortKey]);
+
+  // ─── Selection helpers ──────────────────────────────────────────────────
+
+  const allFilteredSelected =
+    filteredItems.length > 0 && filteredItems.every((i) => selected.has(i.id));
+
+  function toggleItem(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (allFilteredSelected) {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        filteredItems.forEach((i) => next.delete(i.id));
+        return next;
+      });
+    } else {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        filteredItems.forEach((i) => next.add(i.id));
+        return next;
+      });
+    }
+  }
+
+  const selectedCount = Array.from(selected).filter((id) =>
+    filteredItems.some((i) => i.id === id)
+  ).length;
 
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
@@ -73,7 +150,6 @@ export function AdminItemsClient() {
     const created = await createItem.mutateAsync(values);
     setCreateOpen(false);
     createItem.reset();
-    // Open edit dialog so user can immediately add media to the new item.
     setEditItem(created);
   }
 
@@ -88,6 +164,16 @@ export function AdminItemsClient() {
     if (!deleteTarget) return;
     await deleteItem.mutateAsync(deleteTarget.id);
     setDeleteTarget(null);
+    deleteItem.reset();
+  }
+
+  async function handleBulkDelete() {
+    const ids = Array.from(selected).filter((id) => filteredItems.some((i) => i.id === id));
+    for (const id of ids) {
+      await deleteItem.mutateAsync(id);
+    }
+    setSelected(new Set());
+    setBulkDeleteOpen(false);
     deleteItem.reset();
   }
 
@@ -115,15 +201,63 @@ export function AdminItemsClient() {
         </div>
       )}
 
+      {/* Search & sort bar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input
+            placeholder="Search items…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-8"
+          />
+        </div>
+        <Select value={sortKey} onValueChange={(v) => setSortKey(v as ItemSortKey)}>
+          <SelectTrigger className="w-44 gap-1">
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="name_asc">Name A → Z</SelectItem>
+            <SelectItem value="name_desc">Name Z → A</SelectItem>
+            <SelectItem value="price_asc">Price ↑</SelectItem>
+            <SelectItem value="price_desc">Price ↓</SelectItem>
+            <SelectItem value="stock_asc">Stock ↑</SelectItem>
+            <SelectItem value="stock_desc">Stock ↓</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {selectedCount > 0 && (
+          <Button
+            variant="destructive"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => setBulkDeleteOpen(true)}
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete {selectedCount} item{selectedCount !== 1 ? "s" : ""}
+          </Button>
+        )}
+      </div>
+
       {/* Table */}
       <div className="rounded-lg border bg-card overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
+              <TableHead className="w-10">
+                <Checkbox
+                  checked={allFilteredSelected}
+                  onCheckedChange={toggleSelectAll}
+                  aria-label="Select all"
+                  disabled={filteredItems.length === 0}
+                />
+              </TableHead>
               <TableHead className="w-12"></TableHead>
               <TableHead>Name</TableHead>
               <TableHead className="hidden sm:table-cell">Unit</TableHead>
               <TableHead>Available Stock</TableHead>
+              <TableHead className="hidden md:table-cell">Price</TableHead>
               <TableHead className="hidden md:table-cell">Created</TableHead>
               <TableHead className="w-20" />
             </TableRow>
@@ -132,28 +266,34 @@ export function AdminItemsClient() {
             {isLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <TableRow key={i}>
+                  <TableCell><Skeleton className="h-4 w-4" /></TableCell>
                   <TableCell><div className="w-8 h-8 rounded bg-muted animate-pulse" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-36" /></TableCell>
                   <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-12" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                  <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
                   <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
                   <TableCell />
                 </TableRow>
               ))
-            ) : items.length === 0 ? (
+            ) : filteredItems.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-40 text-center">
+                <TableCell colSpan={8} className="h-40 text-center">
                   <div className="flex flex-col items-center gap-3">
                     <Package className="h-8 w-8 text-muted-foreground/30" />
-                    <p className="text-sm text-muted-foreground">No items yet</p>
-                    <Button size="sm" variant="outline" onClick={() => setCreateOpen(true)}>
-                      Add your first item
-                    </Button>
+                    <p className="text-sm text-muted-foreground">
+                      {search ? `No items matching "${search}"` : "No items yet"}
+                    </p>
+                    {!search && (
+                      <Button size="sm" variant="outline" onClick={() => setCreateOpen(true)}>
+                        Add your first item
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
             ) : (
-              items.map((item) => (
+              filteredItems.map((item) => (
                 <TableRow
                   key={item.id}
                   className={cn(
@@ -161,6 +301,13 @@ export function AdminItemsClient() {
                     item.availableStock > 0 && item.availableStock <= 5 && "bg-amber-50/50"
                   )}
                 >
+                  <TableCell>
+                    <Checkbox
+                      checked={selected.has(item.id)}
+                      onCheckedChange={() => toggleItem(item.id)}
+                      aria-label={`Select ${item.name}`}
+                    />
+                  </TableCell>
                   {/* Thumbnail */}
                   <TableCell>
                     <div className="w-8 h-8 rounded overflow-hidden bg-muted flex items-center justify-center shrink-0">
@@ -184,6 +331,9 @@ export function AdminItemsClient() {
                   </TableCell>
                   <TableCell>
                     <StockCell item={item} />
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell text-sm tabular-nums">
+                    {item.price > 0 ? `Rp ${item.price.toLocaleString("id-ID")}` : "—"}
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
                     {formatDate(item.createdAt)}
@@ -316,6 +466,33 @@ export function AdminItemsClient() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* ── Bulk Delete Confirmation ──────────────────────────────────────── */}
+      <Dialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete {selectedCount} items?</DialogTitle>
+            <DialogDescription>
+              This will permanently delete the selected items. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline" disabled={deleteItem.isPending}>
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              onClick={handleBulkDelete}
+              disabled={deleteItem.isPending}
+            >
+              {deleteItem.isPending ? "Deleting…" : `Delete ${selectedCount} items`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+

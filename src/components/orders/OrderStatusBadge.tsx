@@ -6,7 +6,7 @@ const STATUS_CONFIG: Record<OrderStatus, { label: string; className: string }> =
   confirmed: { label: "Confirmed", className: "bg-blue-100 text-blue-800" },
   packed: { label: "Packed", className: "bg-indigo-100 text-indigo-800" },
   shipped: { label: "Shipped", className: "bg-purple-100 text-purple-800" },
-  done: { label: "Done", className: "bg-emerald-100 text-emerald-800" },
+  done: { label: "Done", className: "bg-[#6A4636]/10 text-[#6A4636]" },
   cancelled: { label: "Cancelled", className: "bg-red-100 text-red-800" },
 };
 

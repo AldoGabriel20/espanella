@@ -174,6 +174,9 @@ export const RawOrderSchema = z.object({
   DeliveryAmount: z.number().min(0),
   Status: z.enum(orderStatusValues),
   TotalPrice: z.number().min(0),
+  Address: z.string().nullable().default(null),
+  CardRequest: z.boolean().default(false),
+  Notes: z.string().nullable().default(null),
   InvoiceSignedURL: z.string().nullable().default(null),
   AirwaybillNumber: z.string().nullable().default(null),
   Courier: z.string().nullable().default(null),
@@ -381,3 +384,71 @@ export const RawRecommendationsResponseSchema = z.object({
 export type RawRecommendationsResponse = z.infer<typeof RawRecommendationsResponseSchema>;
 
 export { batchStatusValues, batchComplexityValues };
+
+// ─── Expenses (PascalCase — no json tags on domain struct) ───────────────────
+
+const expenseMarketplaceValues = [
+  "tokopedia",
+  "shopee",
+  "whatsapp",
+  "instagram",
+  "tiket",
+  "grab",
+  "agoda",
+  "lalamove",
+  "other",
+] as const;
+
+const expensePaymentTypeValues = ["unpaid", "dp_50", "completed"] as const;
+
+export const RawExpenseSchema = z.object({
+  ID: z.string(),
+  ExpenseDate: isoDateString,
+  Marketplace: z.enum(expenseMarketplaceValues),
+  StoreName: z.string().nullable().default(null),
+  ItemName: z.string(),
+  Quantity: z.number().int().min(1),
+  FinalPrice: z.number().min(0),
+  PricePerUnit: z.number().min(0),
+  PaymentType: z.enum(expensePaymentTypeValues),
+  Notes: z.string().nullable().default(null),
+  CreatedBy: z.string().nullable().default(null),
+  CreatedAt: isoDateString,
+  UpdatedAt: isoDateString,
+});
+export type RawExpense = z.infer<typeof RawExpenseSchema>;
+
+export const RawExpenseListSchema = pagedResponseSchema(RawExpenseSchema);
+export type RawExpenseList = z.infer<typeof RawExpenseListSchema>;
+
+export const RawFinancialSummarySchema = z.object({
+  DateFrom: isoDateString,
+  DateTo: isoDateString,
+  TotalIncome: z.number(),
+  TotalExpenses: z.number(),
+  NetProfit: z.number(),
+  OrderCount: z.number().int().min(0),
+  ExpenseCount: z.number().int().min(0),
+});
+export type RawFinancialSummary = z.infer<typeof RawFinancialSummarySchema>;
+
+export { expenseMarketplaceValues, expensePaymentTypeValues };
+
+// ─── Company profile (PascalCase — Go domain struct, no json tags) ────────────
+
+export const RawCompanyProfileSchema = z.object({
+  CompanyName: z.string(),
+  Tagline: z.string(),
+  About: z.string(),
+  Email: z.string().nullable().default(null),
+  Phone: z.string().nullable().default(null),
+  WhatsApp: z.string().nullable().default(null),
+  Instagram: z.string().nullable().default(null),
+  Tokopedia: z.string().nullable().default(null),
+  Shopee: z.string().nullable().default(null),
+  Address: z.string().nullable().default(null),
+  HeroImages: z.array(z.string()).default([]),
+  UpdatedAt: isoDateString,
+});
+export type RawCompanyProfile = z.infer<typeof RawCompanyProfileSchema>;
+

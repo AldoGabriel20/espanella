@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Boxes, PackageOpen, ShoppingBag, BarChart3, ClipboardList } from "lucide-react";
+import { Boxes, PackageOpen, ShoppingBag, BarChart3, ClipboardList, Wallet, Building2 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -37,6 +37,18 @@ const adminCards = [
     description: "Smart batch recommendations for efficient order processing.",
     icon: ClipboardList,
     href: "/admin/fulfillment",
+  },
+  {
+    title: "Financial",
+    description: "Track expenses and view income vs. cost reports.",
+    icon: Wallet,
+    href: "/admin/financial",
+  },
+  {
+    title: "Company Profile",
+    description: "Edit brand info, hero images, and contact details.",
+    icon: Building2,
+    href: "/admin/company",
   },
 ];
 

@@ -133,6 +133,9 @@ export type Order = {
   totalPrice: number;
   /** True when an invoice has been generated (actual signed URL is fetched on demand). */
   hasInvoice: boolean;
+  address: string | null;
+  cardRequest: boolean;
+  notes: string | null;
   airwaybillNumber: string | null;
   courier: string | null;
   /** True when this order belongs to an in-progress fulfillment batch; cancel is blocked. */
@@ -324,3 +327,71 @@ export type CreateOrderRequest = {
 export type UpdateOrderStatusRequest = {
   status: OrderStatus;
 };
+
+// ─── Expense / Financial reporting types ─────────────────────────────────────
+
+export type ExpenseMarketplace =
+  | "tokopedia"
+  | "shopee"
+  | "whatsapp"
+  | "instagram"
+  | "tiket"
+  | "grab"
+  | "agoda"
+  | "lalamove"
+  | "other";
+
+export type ExpensePaymentType = "unpaid" | "dp_50" | "completed";
+
+export type Expense = {
+  id: string;
+  expenseDate: string; // ISO date
+  marketplace: ExpenseMarketplace;
+  storeName: string | null;
+  itemName: string;
+  quantity: number;
+  finalPrice: number;
+  pricePerUnit: number;
+  paymentType: ExpensePaymentType;
+  notes: string | null;
+  createdBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ExpenseListParams = {
+  limit?: number;
+  offset?: number;
+  date_from?: string; // YYYY-MM-DD
+  date_to?: string;
+  marketplace?: string;
+  payment_type?: string;
+};
+
+export type FinancialSummary = {
+  dateFrom: string;
+  dateTo: string;
+  totalIncome: number;
+  totalExpenses: number;
+  netProfit: number;
+  orderCount: number;
+  expenseCount: number;
+};
+
+// ─── Company profile types ────────────────────────────────────────────────────
+
+export type CompanyProfile = {
+  companyName: string;
+  tagline: string;
+  about: string;
+  email: string | null;
+  phone: string | null;
+  whatsApp: string | null;
+  instagram: string | null;
+  tokopedia: string | null;
+  shopee: string | null;
+  address: string | null;
+  heroImages: string[]; // public image URLs for hero slider
+  updatedAt: string;
+};
+

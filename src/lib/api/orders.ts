@@ -70,6 +70,9 @@ export type CreateOrderBody = {
   phone: string;
   delivery_date: string; // ISO date string
   delivery_amount: number;
+  address?: string | null;
+  card_request?: boolean;
+  notes?: string | null;
   items: OrderLineInput[];
 };
 

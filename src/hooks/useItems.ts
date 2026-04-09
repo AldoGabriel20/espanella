@@ -13,6 +13,7 @@ async function fetchItems(params?: ItemsListParams): Promise<PaginatedResponse<I
   const q = new URLSearchParams();
   if (params?.limit !== undefined) q.set("limit", String(params.limit));
   if (params?.offset !== undefined) q.set("offset", String(params.offset));
+  if (params?.search) q.set("search", params.search);
   if (params?.sortBy) q.set("sort_by", params.sortBy);
   if (params?.minPrice !== undefined) q.set("min_price", String(params.minPrice));
   if (params?.maxPrice !== undefined) q.set("max_price", String(params.maxPrice));

@@ -48,13 +48,13 @@ export function InvoiceActions({ orderId }: InvoiceActionsProps) {
           : "Generate Invoice"}
       </Button>
 
-      {/* Open existing invoice URL */}
+      {/* Open invoice via proxy — Supabase URL is never exposed to the browser */}
       {invoice ? (
         <a
-          href={invoice.invoiceUrl}
+          href={`/api/orders/${orderId}/invoice/view`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100 transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-md border border-[#6A4636]/25 bg-[#6A4636]/5 px-3 py-1.5 text-xs font-medium text-[#6A4636] hover:bg-[#6A4636]/10 transition-colors"
         >
           <ExternalLink className="h-3.5 w-3.5" />
           Open Invoice

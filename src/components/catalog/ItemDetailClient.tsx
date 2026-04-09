@@ -203,11 +203,11 @@ export function ItemDetailClient({ id }: ItemDetailClientProps) {
         )}
         <div className="flex items-center gap-2">
           {inStock ? (
-            <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+            <CheckCircle2 className="h-4 w-4 text-[#6A4636] shrink-0" />
           ) : (
             <XCircle className="h-4 w-4 text-red-500 shrink-0" />
           )}
-          <span className={cn("text-sm font-medium", inStock ? "text-green-700" : "text-red-600")}>
+          <span className={cn("text-sm font-medium", inStock ? "text-[#6A4636]" : "text-red-600")}>
             {inStock ? `${item.availableStock} ${item.unit} available` : "Out of stock"}
           </span>
         </div>
@@ -248,11 +248,11 @@ export function ItemDetailClient({ id }: ItemDetailClientProps) {
           {/* Stock — desktop only */}
           <div className="hidden lg:flex items-center gap-2">
             {inStock ? (
-              <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+              <CheckCircle2 className="h-4 w-4 text-[#6A4636] shrink-0" />
             ) : (
               <XCircle className="h-4 w-4 text-red-500 shrink-0" />
             )}
-            <span className={cn("text-sm font-medium", inStock ? "text-green-700" : "text-red-600")}>
+            <span className={cn("text-sm font-medium", inStock ? "text-[#6A4636]" : "text-red-600")}>
               {inStock ? `${item.availableStock} ${item.unit} available` : "Out of stock"}
             </span>
           </div>

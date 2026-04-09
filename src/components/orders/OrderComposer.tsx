@@ -8,6 +8,8 @@ import { Trash2, Package, Boxes, AlertCircle, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -35,6 +37,9 @@ const OrderFormSchema = z.object({
   phone: z.string().min(1, "Phone number is required"),
   deliveryDate: z.string().min(1, "Delivery date is required"),
   deliveryAmount: z.number().min(0, "Must be 0 or more"),
+  address: z.string().optional(),
+  cardRequest: z.boolean(),
+  notes: z.string().optional(),
   lines: z.array(LineSchema).min(1, "Add at least one line"),
 });
 
@@ -251,6 +256,9 @@ export function OrderComposer({ isAdmin }: { isAdmin: boolean }) {
       phone: "",
       deliveryDate: "",
       deliveryAmount: 0,
+      address: "",
+      cardRequest: false,
+      notes: "",
       lines: [],
     },
   });
@@ -274,7 +282,11 @@ export function OrderComposer({ isAdmin }: { isAdmin: boolean }) {
 
   async function onSubmit(values: OrderFormValues) {
     try {
-      const order = await createOrder.mutateAsync(values);
+      const order = await createOrder.mutateAsync({
+        ...values,
+        address: values.address || null,
+        notes: values.notes || null,
+      });
       router.push(`/orders/${order.id}`);
     } catch {
       // error surfaced via createOrder.error
@@ -341,7 +353,7 @@ export function OrderComposer({ isAdmin }: { isAdmin: boolean }) {
         <CardHeader className="pb-4">
           <CardTitle className="text-base">Delivery</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="deliveryDate">Delivery Date</Label>
@@ -379,6 +391,50 @@ export function OrderComposer({ isAdmin }: { isAdmin: boolean }) {
             </div>
             )}
           </div>
+
+          {/* Address */}
+          <div className="space-y-1.5">
+            <Label htmlFor="address">Delivery Address</Label>
+            <Textarea
+              id="address"
+              placeholder="Full delivery address (optional)"
+              rows={2}
+              {...form.register("address")}
+            />
+          </div>
+
+          {/* Card request */}
+          <div className="flex items-center gap-2">
+            <Controller
+              name="cardRequest"
+              control={form.control}
+              render={({ field }) => (
+                <Checkbox
+                  id="cardRequest"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+            <Label htmlFor="cardRequest" className="cursor-pointer font-normal">
+              Include greeting card
+            </Label>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Notes */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base">Notes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Textarea
+            id="notes"
+            placeholder="Additional notes, special requests, card message… (optional)"
+            rows={3}
+            {...form.register("notes")}
+          />
         </CardContent>
       </Card>
 

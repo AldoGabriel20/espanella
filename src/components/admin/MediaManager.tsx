@@ -369,7 +369,7 @@ export function MediaManager({ itemId }: MediaManagerProps) {
               {u.state === "uploading" || u.state === "completing" ? (
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground shrink-0" />
               ) : u.state === "done" ? (
-                <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                <CheckCircle2 className="h-4 w-4 text-[#6A4636] shrink-0" />
               ) : (
                 <span className="text-red-500 text-xs shrink-0">{u.error}</span>
               )}

@@ -14,8 +14,8 @@
     --popover: 38 20% 98%;
     --popover-foreground: 20 25% 10%;
 
-    /* Deep forest green — primary brand color */
-    --primary: 145 45% 22%;
+    /* Warm rosewood brown — primary brand color (#6A4636) */
+    --primary: 18 32% 31%;
     --primary-foreground: 38 30% 95%;
 
     /* Warm cream — secondary surface */
@@ -34,7 +34,7 @@
 
     --border: 35 20% 87%;
     --input: 35 20% 87%;
-    --ring: 145 45% 22%;
+    --ring: 18 32% 31%;
 
     --radius: 0.5rem;
 
@@ -48,20 +48,20 @@
     --brick-foreground: 38 30% 96%;
     --brick-light: 16 40% 92%;
 
-    /* Leuzien brand: forest green */
-    --forest: 145 45% 22%;
+    /* Leuzien brand: rosewood brown (#6A4636) */
+    --forest: 18 32% 31%;
     --forest-foreground: 38 30% 95%;
-    --forest-light: 145 30% 90%;
+    --forest-light: 18 20% 90%;
 
     /* Leuzien brand: cream */
     --cream: 38 50% 93%;
     --cream-foreground: 20 25% 18%;
 
     /* Sidebar theme */
-    --sidebar: 145 45% 18%;
+    --sidebar: 18 35% 22%;
     --sidebar-foreground: 38 30% 92%;
-    --sidebar-border: 145 35% 26%;
-    --sidebar-accent: 145 40% 26%;
+    --sidebar-border: 18 25% 38%;
+    --sidebar-accent: 18 25% 38%;
     --sidebar-accent-foreground: 38 30% 95%;
     --sidebar-ring: 42 70% 50%;
   }
@@ -76,7 +76,7 @@
     --popover: 20 18% 11%;
     --popover-foreground: 38 25% 90%;
 
-    --primary: 145 40% 45%;
+    --primary: 18 32% 50%;
     --primary-foreground: 20 20% 8%;
 
     --secondary: 20 15% 18%;
@@ -93,7 +93,7 @@
 
     --border: 20 15% 20%;
     --input: 20 15% 20%;
-    --ring: 145 40% 45%;
+    --ring: 18 32% 50%;
 
     --gold: 42 65% 55%;
     --gold-foreground: 20 20% 8%;
@@ -103,9 +103,9 @@
     --brick-foreground: 20 20% 8%;
     --brick-light: 16 25% 18%;
 
-    --forest: 145 40% 45%;
+    --forest: 18 32% 50%;
     --forest-foreground: 20 20% 8%;
-    --forest-light: 145 20% 18%;
+    --forest-light: 18 20% 22%;
 
     --cream: 38 25% 18%;
     --cream-foreground: 38 25% 85%;

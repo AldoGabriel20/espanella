@@ -4,10 +4,12 @@ import Link from "next/link";
 import { Package, Boxes, ShoppingCart, AlertTriangle, Clock, ShoppingBag, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { HeroBanner } from "@/components/ui/hero-banner";
 import { useItems } from "@/hooks/useItems";
 import { useBundles } from "@/hooks/useBundles";
 import { useOrders } from "@/hooks/useOrders";
 import { useAdminSummary } from "@/hooks/useAdminSummary";
+import { useCompanyProfile } from "@/hooks/useCompanyProfile";
 import { LOW_STOCK_THRESHOLD } from "@/components/catalog/StockIndicator";
 import { formatDate } from "@/lib/utils/date";
 import { cn } from "@/lib/utils";
@@ -18,7 +20,7 @@ const ORDER_STATUS_COLORS: Record<string, string> = {
   confirmed: "bg-blue-100 text-blue-800",
   packed: "bg-indigo-100 text-indigo-800",
   shipped: "bg-purple-100 text-purple-800",
-  done: "bg-emerald-100 text-emerald-800",
+  done: "bg-[#6A4636]/10 text-[#6A4636]",
   cancelled: "bg-red-100 text-red-800",
 };
 
@@ -60,7 +62,7 @@ function MetricCard({
                   "text-3xl font-semibold tabular-nums",
                   accent === "amber" && "text-amber-600",
                   accent === "red" && "text-red-600",
-                  accent === "green" && "text-emerald-600",
+                  accent === "green" && "text-[#6A4636]",
                   accent === "blue" && "text-blue-600"
                 )}
               >
@@ -73,7 +75,7 @@ function MetricCard({
               "rounded-xl p-2.5",
               accent === "amber" && "bg-amber-100 text-amber-600",
               accent === "red" && "bg-red-100 text-red-600",
-              accent === "green" && "bg-emerald-100 text-emerald-600",
+              accent === "green" && "bg-[#6A4636]/10 text-[#6A4636]",
               accent === "blue" && "bg-blue-100 text-blue-600",
               !accent && "bg-forest/10 text-forest"
             )}
@@ -95,6 +97,7 @@ export function DashboardClient({ user }: DashboardClientProps) {
   const { bundles, isLoading: bundlesLoading } = useBundles({ limit: 100 });
   const { orders, isLoading: ordersLoading } = useOrders({ limit: 50 });
   const { data: summary, isLoading: summaryLoading } = useAdminSummary();
+  const { data: company } = useCompanyProfile();
 
   // For admin: use accurate counts from the summary endpoint.
   // For regular users: derive counts from their own fetched lists.
@@ -121,6 +124,15 @@ export function DashboardClient({ user }: DashboardClientProps) {
 
   return (
     <div className="space-y-8">
+      {/* Hero banner — shown for regular users; hidden for admin (clutters the ops dashboard) */}
+      {!isAdmin && company && (
+        <HeroBanner
+          images={company.heroImages}
+          companyName={company.companyName}
+          tagline={company.tagline}
+        />
+      )}
+
       {/* Welcome */}
       <div>
         <h1 className="font-display text-2xl font-semibold tracking-tight">
@@ -201,8 +213,8 @@ export function DashboardClient({ user }: DashboardClientProps) {
               </div>
             ) : lowStockItems.length === 0 ? (
               <div className="flex flex-col items-center py-8 text-center">
-                <TrendingUp className="h-8 w-8 text-emerald-400 mb-2" />
-                <p className="text-sm font-medium text-emerald-700">All items are well-stocked</p>
+                <TrendingUp className="h-8 w-8 text-[#6A4636]/60 mb-2" />
+                <p className="text-sm font-medium text-[#6A4636]">All items are well-stocked</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   No items below {LOW_STOCK_THRESHOLD} units
                 </p>

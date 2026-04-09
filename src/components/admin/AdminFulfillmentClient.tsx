@@ -91,7 +91,7 @@ const COMPLEXITY_CONFIG: Record<
   BatchComplexity,
   { label: string; class: string }
 > = {
-  light: { label: "Light", class: "bg-green-100 text-green-700" },
+  light: { label: "Light", class: "bg-[#6A4636]/10 text-[#6A4636]" },
   medium: { label: "Medium", class: "bg-amber-100 text-amber-800" },
   heavy: { label: "Heavy", class: "bg-red-100 text-red-700" },
 };

@@ -43,6 +43,9 @@ export async function POST(request: Request) {
       phone: data.phone,
       delivery_date: data.deliveryDate,
       delivery_amount: data.deliveryAmount,
+      address: data.address ?? null,
+      card_request: data.cardRequest ?? false,
+      notes: data.notes ?? null,
       items: (data.lines as DraftLine[]).map((line) => ({
         item_id: line.type === "item" ? line.sourceId : undefined,
         bundle_id: line.type === "bundle" ? line.sourceId : undefined,

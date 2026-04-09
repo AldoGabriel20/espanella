@@ -37,7 +37,7 @@ const STATUS_CONFIG: Record<
 > = {
   sent: {
     label: "Sent",
-    class: "bg-emerald-100 text-emerald-800",
+    class: "bg-[#6A4636]/10 text-[#6A4636]",
     icon: CheckCircle2,
   },
   failed: {
@@ -197,7 +197,7 @@ export function AdminNotificationsClient() {
       )}
 
       {sendTest.isSuccess && (
-        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <div className="flex items-center gap-2 rounded-md border border-[#6A4636]/25 bg-[#6A4636]/5 px-4 py-3 text-sm text-[#6A4636]">
           <CheckCircle2 className="h-4 w-4 shrink-0" />
           Test notification sent successfully
         </div>

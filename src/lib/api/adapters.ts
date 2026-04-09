@@ -25,6 +25,9 @@ import type {
   RawStockMovement,
   RawAdminSummary,
   RawNotificationLog,
+  RawExpense,
+  RawFinancialSummary,
+  RawCompanyProfile,
 } from "./schemas";
 
 import type {
@@ -39,6 +42,9 @@ import type {
   StockMovement,
   AdminSummary,
   NotificationLog,
+  Expense,
+  FinancialSummary,
+  CompanyProfile,
 } from "@/types";
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
@@ -189,6 +195,9 @@ export function adaptOrder(raw: RawOrder): Order {
     status: raw.Status,
     totalPrice: raw.TotalPrice,
     hasInvoice,
+    address: raw.Address ?? null,
+    cardRequest: raw.CardRequest ?? false,
+    notes: raw.Notes ?? null,
     airwaybillNumber: raw.AirwaybillNumber ?? null,
     courier: raw.Courier ?? null,
     lockedByBatch: raw.LockedByBatch,
@@ -394,5 +403,56 @@ export function adaptRecommendationsResponse(raw: RawRecommendationsResponse): R
   return {
     data: raw.data.map(adaptBatchRecommendation),
     total: raw.total,
+  };
+}
+
+// ─── Expenses ─────────────────────────────────────────────────────────────────
+
+export function adaptExpense(raw: RawExpense): Expense {
+  return {
+    id: raw.ID,
+    expenseDate: raw.ExpenseDate,
+    marketplace: raw.Marketplace,
+    storeName: raw.StoreName,
+    itemName: raw.ItemName,
+    quantity: raw.Quantity,
+    finalPrice: raw.FinalPrice,
+    pricePerUnit: raw.PricePerUnit,
+    paymentType: raw.PaymentType,
+    notes: raw.Notes,
+    createdBy: raw.CreatedBy,
+    createdAt: raw.CreatedAt,
+    updatedAt: raw.UpdatedAt,
+  };
+}
+
+export function adaptFinancialSummary(raw: RawFinancialSummary): FinancialSummary {
+  return {
+    dateFrom: raw.DateFrom,
+    dateTo: raw.DateTo,
+    totalIncome: raw.TotalIncome,
+    totalExpenses: raw.TotalExpenses,
+    netProfit: raw.NetProfit,
+    orderCount: raw.OrderCount,
+    expenseCount: raw.ExpenseCount,
+  };
+}
+
+// ─── Company profile ──────────────────────────────────────────────────────────
+
+export function adaptCompanyProfile(raw: RawCompanyProfile): CompanyProfile {
+  return {
+    companyName: raw.CompanyName,
+    tagline: raw.Tagline,
+    about: raw.About,
+    email: raw.Email,
+    phone: raw.Phone,
+    whatsApp: raw.WhatsApp,
+    instagram: raw.Instagram,
+    tokopedia: raw.Tokopedia,
+    shopee: raw.Shopee,
+    address: raw.Address,
+    heroImages: raw.HeroImages ?? [],
+    updatedAt: raw.UpdatedAt,
   };
 }

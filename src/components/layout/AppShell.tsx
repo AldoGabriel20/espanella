@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
+import { Footer } from "./Footer";
 
 type BreadcrumbItem = {
   title: string;
@@ -31,9 +32,12 @@ export function AppShell({
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
         <Topbar role={role} userName={userName} breadcrumbs={breadcrumbs} />
 
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <main className="flex-1 overflow-y-auto flex flex-col">
+          <div className="flex-1 w-full mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             {children}
+          </div>
+          <div className="mt-8">
+            <Footer />
           </div>
         </main>
       </div>

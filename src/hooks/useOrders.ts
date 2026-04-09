@@ -81,6 +81,9 @@ export type CreateOrderDraft = {
   phone: string;
   deliveryDate: string;
   deliveryAmount: number;
+  address?: string | null;
+  cardRequest?: boolean;
+  notes?: string | null;
   lines: OrderDraftLine[];
 };
 
