@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { Instagram, MessageCircle, ShoppingBag, Mail, Phone, MapPin, Leaf } from "lucide-react";
+import { Instagram, MessageCircle, ShoppingBag, Mail, Phone, MapPin } from "lucide-react";
 import { useCompanyProfile } from "@/hooks/useCompanyProfile";
 import { APP_NAME } from "@/lib/utils/app-config";
 
@@ -18,7 +19,7 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Leaf className="h-5 w-5 text-[hsl(var(--sidebar-ring))]" />
+              <Image src="/hachiandlota.png" alt="Hachi & Lota" width={20} height={20} className="object-contain" />
               <span className="font-semibold text-lg">{companyName}</span>
             </div>
             <p className="text-sm text-[hsl(var(--sidebar-foreground)/0.7)] leading-relaxed">

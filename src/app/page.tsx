@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Leaf, PackageOpen, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,9 +12,7 @@ export default function MarketingHomePage() {
       <header className="border-b border-border px-6 py-4">
         <div className="mx-auto max-w-6xl flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="flex items-center justify-center w-8 h-8 rounded-md bg-forest text-forest-foreground">
-              <Leaf className="h-4 w-4" />
-            </div>
+            <Image src="/hachiandlota.png" alt="Hachi & Lota" width={32} height={32} className="rounded-md object-contain" />
             <span className="font-display font-semibold text-foreground text-lg tracking-wide">
               {APP_NAME}
             </span>

@@ -1,6 +1,6 @@
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { Leaf } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { APP_NAME } from "@/lib/utils/app-config";
@@ -28,9 +28,7 @@ export default async function AuthLayout({
         </div>
 
         <Link href="/" className="flex items-center gap-2.5 relative z-10">
-          <div className="flex items-center justify-center w-9 h-9 rounded-md bg-gold/20">
-            <Leaf className="h-4.5 w-4.5 text-gold" />
-          </div>
+          <Image src="/hachiandlota.png" alt="Hachi & Lota" width={36} height={36} className="rounded-md object-contain" />
           <span className="font-display font-semibold text-xl tracking-wide">
             {APP_NAME}
           </span>
@@ -60,9 +58,7 @@ export default async function AuthLayout({
       <div className="flex flex-col items-center justify-center p-6 sm:p-12">
         <div className="lg:hidden mb-8">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex items-center justify-center w-8 h-8 rounded-md bg-forest text-forest-foreground">
-              <Leaf className="h-4 w-4" />
-            </div>
+            <Image src="/hachiandlota.png" alt="Hachi & Lota" width={32} height={32} className="rounded-md object-contain" />
             <span className="font-display font-semibold text-lg tracking-wide">
               {APP_NAME}
             </span>

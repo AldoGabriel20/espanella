@@ -4,10 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_NAME } from "@/lib/utils/app-config";
+import Image from "next/image";
 import {
   Menu,
   X,
-  Leaf,
   LayoutDashboard,
   Package,
   Boxes,
@@ -111,9 +111,7 @@ export function MobileNav({ role = "user" }: MobileNavProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-sidebar-border shrink-0">
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-7 h-7 rounded-md bg-gold/20">
-              <Leaf className="h-3.5 w-3.5 text-gold" />
-            </div>
+              <Image src="/hachiandlota.png" alt="Hachi & Lota" width={28} height={28} className="rounded-md object-contain" />
             <span className="font-display font-semibold text-sidebar-foreground">
               {APP_NAME}
             </span>

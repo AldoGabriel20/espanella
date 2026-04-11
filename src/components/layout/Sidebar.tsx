@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -12,7 +13,6 @@ import {
   BarChart3,
   Boxes,
   ChevronDown,
-  Leaf,
   Truck,
   Wallet,
   Building2,
@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { APP_NAME } from "@/lib/utils/app-config";
 
 type NavItem = {
   title: string;
@@ -206,12 +207,10 @@ export function Sidebar({ role = "user", className }: SidebarProps) {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-sidebar-border shrink-0">
-        <div className="flex items-center justify-center w-8 h-8 rounded-md bg-gold/20">
-          <Leaf className="h-4 w-4 text-gold" />
-        </div>
+        <Image src="/hachiandlota.png" alt="Hachi & Lota" width={32} height={32} className="rounded-md object-contain" />
         <div>
           <span className="font-display font-semibold text-sidebar-foreground tracking-wide text-lg leading-none">
-            Leuzien
+            {APP_NAME}
           </span>
           <p className="text-xs text-sidebar-foreground/50 mt-0.5">
             Operations
