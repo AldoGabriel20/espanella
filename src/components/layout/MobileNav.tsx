@@ -45,6 +45,7 @@ const workspaceSection: NavSection = {
     { title: "Items", href: "/catalog/items", icon: Boxes, indent: true },
     { title: "Bundles", href: "/catalog/bundles", icon: PackageOpen, indent: true },
     { title: "Orders", href: "/orders", icon: ShoppingBag },
+    { title: "About Us", href: "/about", icon: Building2 },
   ],
 };
 
