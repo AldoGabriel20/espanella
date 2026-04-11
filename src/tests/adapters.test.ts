@@ -304,6 +304,7 @@ describe("adaptStockMovement", () => {
     const raw = {
       ID: "sm-1",
       ItemID: "item-1",
+      ItemName: "Test Item",
       OrderID: "order-1",
       Delta: -5,
       Reason: "order_reserved",
@@ -313,6 +314,7 @@ describe("adaptStockMovement", () => {
     expect(movement).toEqual({
       id: "sm-1",
       itemId: "item-1",
+      itemName: "Test Item",
       orderId: "order-1",
       delta: -5,
       reason: "order_reserved",
@@ -324,6 +326,7 @@ describe("adaptStockMovement", () => {
     const raw = {
       ID: "sm-2",
       ItemID: "item-1",
+      ItemName: "",
       OrderID: null,
       Delta: 50,
       Reason: "manual_adjustment",

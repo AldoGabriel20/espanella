@@ -148,6 +148,7 @@ export type Order = {
 export type StockMovement = {
   id: string;
   itemId: string;
+  itemName: string;
   orderId: string | null;
   delta: number;
   reason: string;

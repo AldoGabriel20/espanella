@@ -59,7 +59,6 @@ interface MovementTableProps {
   isLoading: boolean;
   isError: boolean;
   error: unknown;
-  itemNameMap: Map<string, string>;
   showItemColumn: boolean;
 }
 
@@ -68,7 +67,6 @@ function MovementTable({
   isLoading,
   isError,
   error,
-  itemNameMap,
   showItemColumn,
 }: MovementTableProps) {
   if (isError) {
@@ -133,7 +131,7 @@ function MovementTable({
               <TableRow key={m.id}>
                 {showItemColumn && (
                   <TableCell className="font-medium text-sm">
-                    {itemNameMap.get(m.itemId) ?? (
+                    {m.itemName || (
                       <span className="font-mono text-xs text-muted-foreground">
                         {m.itemId.slice(0, 8)}…
                       </span>
@@ -206,7 +204,6 @@ function ItemDrillDown({ itemId, itemName, onClear }: ItemDrillDownProps) {
         isLoading={isLoading}
         isError={isError}
         error={error}
-        itemNameMap={new Map([[itemId, itemName]])}
         showItemColumn={false}
       />
 
@@ -255,9 +252,8 @@ export function AdminStockClient() {
     error,
   } = useStockMovements({ limit: PAGE_SIZE, offset });
 
-  // Item catalog for name resolution
+  // Item catalog for drill-down pills only
   const { items } = useItems({ limit: 200 });
-  const itemNameMap = new Map(items.map((it) => [it.id, it.name]));
 
   const canPrev = offset > 0;
   const canNext = movements.length === PAGE_SIZE;
@@ -301,7 +297,6 @@ export function AdminStockClient() {
             isLoading={isLoading}
             isError={isError}
             error={error}
-            itemNameMap={itemNameMap}
             showItemColumn
           />
 

@@ -230,6 +230,7 @@ export function adaptStockMovement(raw: RawStockMovement): StockMovement {
   return {
     id: raw.ID,
     itemId: raw.ItemID,
+    itemName: raw.ItemName,
     orderId: raw.OrderID,
     delta: raw.Delta,
     reason: raw.Reason,

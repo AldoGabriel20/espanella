@@ -202,6 +202,7 @@ export type RawInvoice = z.infer<typeof RawInvoiceSchema>;
 export const RawStockMovementSchema = z.object({
   ID: z.string(),
   ItemID: z.string(),
+  ItemName: z.string().default(''),
   OrderID: z.string().nullable().default(null),
   Delta: z.number().int(),
   Reason: z.string(),
