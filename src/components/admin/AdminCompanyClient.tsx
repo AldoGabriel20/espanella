@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Trash2, AlertCircle, Check, Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { APP_NAME } from "@/lib/utils/app-config";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -173,7 +174,7 @@ export default function AdminCompanyClient() {
         <CardContent>
           <HeroBanner
             images={form.heroImages}
-            companyName={form.companyName || "Leuzien"}
+            companyName={form.companyName || APP_NAME}
             tagline={form.tagline || "Hampers & Gifts, Made with Love"}
             interval={0}
           />

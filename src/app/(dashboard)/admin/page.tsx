@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Boxes, PackageOpen, ShoppingBag, BarChart3, ClipboardList, Wallet, Building2 } from "lucide-react";
+import { APP_NAME } from "@/lib/utils/app-config";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -57,7 +58,7 @@ export default function AdminPage() {
     <div className="space-y-8">
       <PageHeader
         title="Admin"
-        description="Operations workspace for managing the Leuzien catalog and orders."
+        description={`Operations workspace for managing the ${APP_NAME} catalog and orders.`}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

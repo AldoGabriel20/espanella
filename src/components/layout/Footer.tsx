@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { Instagram, MessageCircle, ShoppingBag, Mail, Phone, MapPin, Leaf } from "lucide-react";
 import { useCompanyProfile } from "@/hooks/useCompanyProfile";
+import { APP_NAME } from "@/lib/utils/app-config";
 
 export function Footer() {
   const { data: profile } = useCompanyProfile();
 
-  const companyName = profile?.companyName ?? "Leuzien";
+  const companyName = profile?.companyName ?? APP_NAME;
   const tagline = profile?.tagline ?? "Hampers & Gifts, Made with Love";
 
   return (

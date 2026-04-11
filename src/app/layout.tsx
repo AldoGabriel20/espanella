@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { APP_NAME } from "@/lib/utils/app-config";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -16,8 +17,8 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "Leuzien",
-    template: "%s | Leuzien",
+    default: APP_NAME,
+    template: `%s | ${APP_NAME}`,
   },
   description: "Premium hampers catalog and order management",
 };

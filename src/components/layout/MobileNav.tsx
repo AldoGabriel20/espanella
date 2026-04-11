@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { APP_NAME } from "@/lib/utils/app-config";
 import {
   Menu,
   X,
@@ -114,7 +115,7 @@ export function MobileNav({ role = "user" }: MobileNavProps) {
               <Leaf className="h-3.5 w-3.5 text-gold" />
             </div>
             <span className="font-display font-semibold text-sidebar-foreground">
-              Leuzien
+              {APP_NAME}
             </span>
           </div>
           <Button

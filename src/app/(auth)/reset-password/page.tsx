@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
+import { APP_NAME } from "@/lib/utils/app-config";
 
 export const metadata: Metadata = {
   title: "Reset Password",
@@ -15,7 +16,7 @@ export default function ResetPasswordPage() {
           Set a New Password
         </h1>
         <p className="text-sm text-muted-foreground">
-          Enter a new password for your Leuzien account.
+          Enter a new password for your {APP_NAME} account.
         </p>
       </div>
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Leaf, PackageOpen, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { APP_NAME } from "@/lib/utils/app-config";
 
 export default function MarketingHomePage() {
   return (
@@ -14,7 +15,7 @@ export default function MarketingHomePage() {
               <Leaf className="h-4 w-4" />
             </div>
             <span className="font-display font-semibold text-foreground text-lg tracking-wide">
-              Leuzien
+              {APP_NAME}
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -42,7 +43,7 @@ export default function MarketingHomePage() {
           </h1>
 
           <p className="text-lg text-muted-foreground max-w-xl mx-auto text-balance leading-relaxed">
-            Leuzien is an operations platform for managing your premium hampers
+            {APP_NAME} is an operations platform for managing your premium hampers
             catalog, orders, and inventory — from creation to delivery.
           </p>
 
@@ -106,7 +107,7 @@ export default function MarketingHomePage() {
       <footer className="border-t border-border px-6 py-6">
         <div className="mx-auto max-w-6xl flex items-center justify-between text-sm text-muted-foreground">
           <span>
-            © {new Date().getFullYear()} Leuzien. All rights reserved.
+            © {new Date().getFullYear()} {APP_NAME}. All rights reserved.
           </span>
           <div className="flex items-center gap-2">
             <Leaf className="h-3.5 w-3.5 text-forest" />

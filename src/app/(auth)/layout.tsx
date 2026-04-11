@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Leaf } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
+import { APP_NAME } from "@/lib/utils/app-config";
 
 export default async function AuthLayout({
   children,
@@ -31,7 +32,7 @@ export default async function AuthLayout({
             <Leaf className="h-4.5 w-4.5 text-gold" />
           </div>
           <span className="font-display font-semibold text-xl tracking-wide">
-            Leuzien
+            {APP_NAME}
           </span>
         </Link>
 
@@ -50,7 +51,7 @@ export default async function AuthLayout({
 
         <div className="relative z-10">
           <p className="text-xs text-forest-foreground/40">
-            © {new Date().getFullYear()} Leuzien
+            © {new Date().getFullYear()} {APP_NAME}
           </p>
         </div>
       </div>
@@ -63,7 +64,7 @@ export default async function AuthLayout({
               <Leaf className="h-4 w-4" />
             </div>
             <span className="font-display font-semibold text-lg tracking-wide">
-              Leuzien
+              {APP_NAME}
             </span>
           </Link>
         </div>

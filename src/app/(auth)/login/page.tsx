@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { APP_NAME } from "@/lib/utils/app-config";
 
 export const metadata: Metadata = {
   title: "Sign In",
@@ -14,7 +15,7 @@ export default function LoginPage() {
           Welcome back
         </h1>
         <p className="text-sm text-muted-foreground">
-          Sign in to your Leuzien account
+          Sign in to your {APP_NAME} account
         </p>
       </div>
 
